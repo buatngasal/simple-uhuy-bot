@@ -2,7 +2,7 @@ const { Search } = require('abot-scraper');
 const search = new Search();
 
 module.exports = {
-  name: 'ytsearch',
+  name: 'yts',
   description: 'Search YouTube videos by keywords',
   async execute(sock, msg, args) {
     const query = args.join(' ');

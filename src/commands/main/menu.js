@@ -35,7 +35,7 @@ module.exports = {
 
     const menuList = commandFiles.map(cmd => `• ${cmd}`).join('\n');
 
-    const menu = `🦚 *Uhuy-Bot*
+    const menu = `🦚 *Uhuy-Bot Menu*
 
 *All Menu* 🍃
 ${menuList}

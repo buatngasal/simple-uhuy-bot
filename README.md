@@ -19,6 +19,7 @@ A versatile WhatsApp bot for downloading, news, group tools, and more!
 .tiktok <url>      TikTok Video
 .yt <url>          YouTube Video
 .ytmp3 <url>       YouTube MP3
+.yts <query>       YouTube Search
 ```
 
 **Tools:**
