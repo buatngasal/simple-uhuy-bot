@@ -1,6 +1,6 @@
 module.exports = {
   name: 'broadcast',
-  description: 'Broadcast a message to all chats (owner only)',
+  description: 'Broadcast a message to all chats',
   async execute(sock, msg, args) {
     if (!args.length) return sock.sendMessage(msg.key.remoteJid, { text: 'Please provide a message to broadcast.' }, { quoted: msg });
     const text = args.join(' ');
