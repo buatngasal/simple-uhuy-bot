@@ -61,7 +61,6 @@ This bot includes advanced performance optimizations:
    git clone https://github.com/buatngasal/simple-uhuy-bot.git
    cd simple-uhuy-bot
    npm install
-   npm install abot-scraper --legacy-peer-deps
    ```
 2. **Run the bot:**
    ```bash
