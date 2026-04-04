@@ -19,4 +19,4 @@ module.exports = {
   }
 }; 
 
-// [fix] fitur anime
+// [fix] fitur anime ✓

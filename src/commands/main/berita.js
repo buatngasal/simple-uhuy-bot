@@ -31,4 +31,4 @@ module.exports = {
   }
 }; 
 
-// [fix] fitur berita google
+// [fix] fitur berita google ✓

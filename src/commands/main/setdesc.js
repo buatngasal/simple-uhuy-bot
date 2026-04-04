@@ -1,6 +1,6 @@
 module.exports = {
   name: 'setdesc',
-  description: 'Set group description (admin only)',
+  description: 'Set group description (if bot admin)',
   async execute(sock, msg, args) {
     if (!msg.key.remoteJid.endsWith('@g.us')) {
       return sock.sendMessage(msg.key.remoteJid, { text: 'This command can only be used in groups.' }, { quoted: msg });
@@ -16,4 +16,4 @@ module.exports = {
   },
 }; 
 
-// [fix] fitur set desc group
+// [fix] fitur set desc group ✓

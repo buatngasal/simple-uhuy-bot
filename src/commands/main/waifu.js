@@ -15,4 +15,4 @@ module.exports = {
   },
 }; 
 
-// [fix] fitur waifu
+// [fix] fitur waifu ✓

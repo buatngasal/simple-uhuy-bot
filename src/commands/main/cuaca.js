@@ -41,4 +41,4 @@ Wind : *${Wind}*
   },
 };
 
-// [fix] fitur cuaca
+// [fix] fitur cuaca ✓ 

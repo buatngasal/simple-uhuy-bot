@@ -26,4 +26,4 @@ _Type .help <command> to get details about a specific command._`;
   },
 }; 
 
-// [fix] fitur help
+// [fix] fitur help ✓

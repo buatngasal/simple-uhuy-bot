@@ -17,8 +17,7 @@ class Database {
       points: 'points.json',
       autoresponder: 'autoresponder.json',
       welcome: 'welcome.json',
-      // polls: 'polls.json',
-      // portfolio: 'portfolio.json'
+      menfess: 'menfess.json',
     };
   }
 

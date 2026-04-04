@@ -1,7 +1,7 @@
 {
   "name": "uhuy-bot",
   "version": "1.0.0",
-  "description": "WhatsApp Bot inspired by Knight-Bot, powered by Baileys.",
+  "description": "WhatsApp Bot inspired by Ong-Bak, powered by Baileys.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -13,7 +13,7 @@
     "baileys",
     "uhuy-bot"
   ],
-  "author": "Ong-Bak",
+  "author": "Uhuy-Bot",
   "license": "MIT",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

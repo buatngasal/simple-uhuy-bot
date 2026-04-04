@@ -15,4 +15,4 @@ module.exports = {
   },
 }; 
 
-// [fix] fitur gambar kucing random
+// [fix] fitur gambar kucing random ✓

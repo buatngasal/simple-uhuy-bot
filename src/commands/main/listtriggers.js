@@ -72,4 +72,4 @@ module.exports = {
   }
 }; 
 
-// [fix] list triggers
+// [fix] list triggers ✓

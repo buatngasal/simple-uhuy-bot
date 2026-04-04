@@ -56,4 +56,5 @@ module.exports = {
   }
 };
 
-// [fix] fitur tiktok
+// [fix] fitur tiktok ✓
+// jika terjadi undefined downloader.tiktokDownloader, maka hapus dulu folder abot-scraper di node_modules, lalu install ulang npm: $ npm install abot-scraper@1.6.2

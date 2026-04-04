@@ -15,4 +15,4 @@ module.exports = {
   },
 }; 
 
-// [fix] fitur anjing random
+// [fix] fitur anjing random ✓

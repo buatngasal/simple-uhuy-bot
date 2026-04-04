@@ -15,4 +15,4 @@ module.exports = {
   },
 }; 
 
-// [fix] fitur mengambil link group
+// [fix] fitur mengambil link group ✓

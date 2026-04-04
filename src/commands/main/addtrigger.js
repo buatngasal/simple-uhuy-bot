@@ -155,4 +155,4 @@ module.exports = {
   }
 }; 
 
-// [fix] menyimpan pesan sesuai perintah
+// [fix] add trigger: menyimpan pesan sesuai perintah ✓

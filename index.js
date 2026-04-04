@@ -13,6 +13,7 @@ const apiManager = require('./src/lib/api-manager');
 const cache = require('./src/lib/cache');
 const performanceMonitor = require('./src/lib/performance-monitor');
 const connectionHealth = require('./src/lib/connection-health');
+const menfessCmd = require('./src/commands/main/menfess');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 
@@ -375,9 +376,19 @@ async function startBot() {
       // Passive point for any message
       await addPoint(msg.key.remoteJid, msg.key.participant || msg.key.remoteJid, 1);
 
+      // body
+      const body = msg.message.conversation || msg.message.extendedTextMessage?.text || '';
+
+      // menfess
+      const isCommand = body.startsWith(config.commandPrefix);
+      const isReply = !!msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
+      if (!isCommand || isReply) {
+          const isMenfessReply = await menfessCmd.handleReply(sock, msg, body);
+          if (isMenfessReply) return;
+      }
+
       // Autoresponder logic
       const triggers = autoresponderCmd.getTriggers(msg.key.remoteJid);
-      const body = msg.message.conversation || msg.message.extendedTextMessage?.text || '';
       for (const [trigger, response] of Object.entries(triggers)) {
         if (body.toLowerCase().includes(trigger)) {
           try {

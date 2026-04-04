@@ -17,4 +17,4 @@ module.exports = {
   warnings,
 }; 
 
-// [fix] warn
+// [fix] warn (menambahkan point warning) ✓

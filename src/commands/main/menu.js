@@ -46,4 +46,4 @@ Ketik *${commandPrefix}help <command>* untuk detail.`;
   },
 };
 
-// [fix] fitur menu
+// [fix] fitur menu ✓

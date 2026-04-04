@@ -61,7 +61,7 @@ module.exports = {
   getLeaderboard,
   name: 'points',
   description: 'Cek poin kamu atau leaderboard grup',
-  usage: '.points [@user]',
+  usage: '.points <top|leaderboard>',
   async execute(sock, msg, args) {
     try {
       const id = msg.key.remoteJid;
@@ -87,4 +87,4 @@ module.exports = {
   }
 }; 
 
-// [fix] cek points
+// [fix] cek points ✓

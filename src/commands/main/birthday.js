@@ -72,4 +72,4 @@ module.exports = {
   },
 }; 
 
-// [fix] fitur ulang tahun
+// [fix] fitur ulang tahun  ✓

@@ -12,7 +12,8 @@ module.exports = {
     birthdays: 'birthdays.json',
     points: 'points.json',
     autoresponder: 'autoresponder.json',
-    welcome: 'welcome.json'
+    welcome: 'welcome.json',
+    menfess: 'menfess.json',
   },
 
   // Background polling intervals (in milliseconds)

@@ -24,4 +24,4 @@ module.exports = {
   },
 };
 
-// [fix] fitur add member
+// [fix] fitur add member ✓

@@ -176,4 +176,4 @@ module.exports.listtriggers = {
   }
 }; 
 
-// [fix] fitur autoresponder trigger
+// [fix] fitur autoresponder trigger ✓

@@ -26,4 +26,4 @@ module.exports = {
   },
 }; 
 
-// [fix] suit bersama bot
+// [fix] suit bersama bot ✓

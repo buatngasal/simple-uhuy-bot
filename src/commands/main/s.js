@@ -104,4 +104,4 @@ module.exports = {
   },
 }; 
 
-// [fix] fitur sticker
+// [fix] fitur sticker ✓

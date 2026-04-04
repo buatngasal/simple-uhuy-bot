@@ -20,4 +20,4 @@ module.exports = {
   },
 }; 
 
-// [fix] unwarn
+// [fix] unwarn (mengurangi point warning) ✓

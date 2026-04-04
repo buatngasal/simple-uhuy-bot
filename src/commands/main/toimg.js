@@ -71,3 +71,5 @@ module.exports = {
     fs.unlinkSync(tempOutput);
   },
 }; 
+
+// [fix] fitur sticker to image ✓

@@ -14,4 +14,4 @@ _Bot created with ❤️ by Uhuy-Bot_`;
   },
 }; 
 
-// [fix] fitur info owner
+// [fix] fitur info owner ✓

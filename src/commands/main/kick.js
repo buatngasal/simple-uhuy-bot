@@ -31,4 +31,4 @@ module.exports = {
   },
 };
 
-// [fix] fitur kick member
+// [fix] fitur kick member ✓
