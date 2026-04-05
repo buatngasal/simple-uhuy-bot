@@ -209,8 +209,16 @@ class CommandLoader {
         this.commands.delete(commandName);
         this.loadedCommands.delete(commandName);
         
-        // Clear require cache
-        delete require.cache[require.resolve(filePath)];
+        // PERBAIKAN: Gunakan try-catch agar tidak crash jika file sudah hilang
+        try {
+          const resolvedPath = require.resolve(filePath);
+          if (require.cache[resolvedPath]) {
+            delete require.cache[resolvedPath];
+          }
+        } catch (e) {
+          // Jika file sudah tidak ada, abaikan saja errornya
+          // console.log(`Cache untuk ${commandName} sudah bersih.`);
+        }
         
         this.stats.totalCommands--;
         if (this.loadedCommands.has(commandName)) {

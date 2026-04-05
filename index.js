@@ -6,7 +6,6 @@ const chalk = require('chalk');
 const axios = require('axios');
 const config = require('./config');
 const { addPoint } = require('./src/commands/main/points');
-const welcomeCmd = require('./src/commands/main/welcome');
 const autoresponderCmd = require('./src/commands/main/autoresponder');
 const database = require('./src/lib/database');
 const apiManager = require('./src/lib/api-manager');
@@ -39,54 +38,6 @@ function saveJson(p, d) {
 const backgroundIntervals = [];
 
 async function pollBackground(sock) {
-  // Price Alerts - Optimized with caching and rate limiting
-  const priceAlertInterval = setInterval(async () => {
-    try {
-      const db = await database.load('alerts');
-      const alertsToCheck = [];
-
-      // Collect all unique symbols to check
-      const symbolsToCheck = new Set();
-      for (const user in db) {
-        for (const alert of db[user]) {
-          symbolsToCheck.add(alert.symbol);
-          alertsToCheck.push({ user, alert });
-        }
-      }
-
-      if (symbolsToCheck.size === 0) return;
-
-      // Batch check prices for all symbols
-      const symbols = Array.from(symbolsToCheck).join(',');
-      try {
-        const data = await apiManager.getCoinPrice(symbols);
-        const priceMap = new Map();
-        data.forEach(coin => {
-          priceMap.set(coin.symbol.toLowerCase(), coin);
-        });
-
-        // Check alerts and send notifications
-        const updatedDb = { ...db };
-        for (const { user, alert } of alertsToCheck) {
-          const coin = priceMap.get(alert.symbol.toLowerCase());
-          if (coin && coin.current_price >= alert.price) {
-            await sock.sendMessage(user, {
-              text: `🚨 ${coin.name} (${coin.symbol.toUpperCase()}) hit $${coin.current_price} (alert: $${alert.price})`
-            });
-            updatedDb[user] = updatedDb[user].filter(a => a !== alert);
-          }
-        }
-
-        database.save('alerts', updatedDb);
-      } catch (error) {
-        console.error('Error checking price alerts:', error.message);
-      }
-    } catch (error) {
-      console.error('Error in price alerts polling:', error.message);
-    }
-  }, config.polling.priceAlerts);
-
-  backgroundIntervals.push(priceAlertInterval);
 
   // Scheduled Messages - Optimized
   const scheduleInterval = setInterval(async () => {
@@ -317,7 +268,7 @@ async function startBot() {
       console.log(chalk.blue('Command loader initialized'));
 
       // Preload frequently used commands
-      const frequentCommands = ['help', 'menu', 'ping', 'points', 'coin'];
+      const frequentCommands = ['help', 'menu', 'ping', 'points'];
       await commandLoader.preloadCommands(frequentCommands);
 
       // Preload frequently accessed data
@@ -334,35 +285,6 @@ async function startBot() {
     }
   });
 
-  sock.ev.on('group-participants.update', async (update) => {
-    const { id, participants, action } = update;
-    if (action === 'add') {
-      const welcome = welcomeCmd.getWelcome(id);
-      if (welcome) {
-        for (const user of participants) {
-          try {
-            const text = welcome.replace(/@user/g, '@' + user.split('@')[0]).replace(/@group/g, id.split('@')[0]);
-            await sock.sendMessage(id, { text, mentions: [user] });
-          } catch (error) {
-            console.error(`Error sending welcome message to ${user}:`, error.message);
-          }
-        }
-      }
-    } else if (action === 'remove') {
-      const goodbye = welcomeCmd.getGoodbye(id);
-      if (goodbye) {
-        for (const user of participants) {
-          try {
-            const text = goodbye.replace(/@user/g, '@' + user.split('@')[0]).replace(/@group/g, id.split('@')[0]);
-            await sock.sendMessage(id, { text, mentions: [user] });
-          } catch (error) {
-            console.error(`Error sending goodbye message to ${user}:`, error.message);
-          }
-        }
-      }
-    }
-  });
-
   sock.ev.on('messages.upsert', async ({ messages }) => {
     const msg = messages[0];
     if (!msg.message || msg.key.fromMe) return;
@@ -376,10 +298,10 @@ async function startBot() {
       // Passive point for any message
       await addPoint(msg.key.remoteJid, msg.key.participant || msg.key.remoteJid, 1);
 
-      // body
+      // Body
       const body = msg.message.conversation || msg.message.extendedTextMessage?.text || '';
 
-      // menfess
+      // Menfess
       const isCommand = body.startsWith(config.commandPrefix);
       const isReply = !!msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
       if (!isCommand || isReply) {

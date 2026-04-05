@@ -241,7 +241,7 @@ class PerformanceBenchmark {
     
     // Benchmark lazy loading
     const lazyLoadStart = performance.now();
-    const commands = ['help', 'menu', 'ping', 'points', 'coin'];
+    const commands = ['help', 'menu', 'ping', 'points'];
     for (const cmd of commands) {
       await commandLoader.getCommand(cmd);
     }
