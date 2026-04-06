@@ -24,15 +24,17 @@ A versatile WhatsApp bot for downloading, news, group tools, and more!
 
 **Tools:**
 ```
-.s                           Sticker maker
-.toimg                       Sticker to image
-.menfess <number|message>    Send a message anonymously
+.s                 Sticker maker
+.toimg             Sticker to image
+.menfess           Send a message anonymously
 ```
 
 **Group:**
 ```
 .add <number>      Add member
 .kick <number>     Remove member
+.promote <@tag>    Add as admin
+.demote <@tag>     Remove as admin
 ```
 
 **Admin Tools:**

@@ -4,7 +4,7 @@ const { commandPrefix } = require('../../../config');
 module.exports = {
   name: 'r',
   description: 'Mengirim kembali pesan yang di-reply (get quoted object)',
-  usage: `${commandPrefix}r`,
+  usage: `${commandPrefix}r (reply to any message)`,
   async execute(sock, msg, args) {
     try {
       const id = msg.key.remoteJid;

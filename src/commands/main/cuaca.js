@@ -1,10 +1,10 @@
 const axios = require('axios');
 const { commandPrefix } = require('../../../config');
 
-
 module.exports = {
   name: 'cuaca',
   description: 'Untuk mengetahui cuaca hari ini berdasarkan kabupaten/kota',
+  usage: `${commandPrefix}cuaca <kota>`, 
   async execute(sock, msg, args) {
     if (!args.length) return sock.sendMessage(msg.key.remoteJid, { text: `*Contoh:* ${commandPrefix}cuaca bandung` }, { quoted: msg });
     try {
@@ -18,16 +18,16 @@ module.exports = {
       const Maximum_Temperature= res.data.main.temp_max + '°C'
       const Humidity= res.data.main.humidity + '%'
       const Wind= res.data.wind.speed + 'km/h'
-      await sock.sendMessage(msg.key.remoteJid, { text: `*❏  W E A T H E R*
+      await sock.sendMessage(msg.key.remoteJid, { text: `🌤 *W E A T H E R* 🌤
 
-Place : *${name}*
-Country : *${Country}*
-Weather : *${Weather}*
-Temperature : *${Temperature}*
-Minimum Temperature : *${Minimum_Temperature}*
-Maximum Temperature : *${Maximum_Temperature}*
-Humidity : *${Humidity}*
-Wind : *${Wind}*
+📍 Place : *${name}*
+🌏 Country : *${Country}*
+✨ Weather : *${Weather}*
+❄️ Temperature : *${Temperature}*
+❄️ Minimum Temperature : *${Minimum_Temperature}*
+❄️ Maximum Temperature : *${Maximum_Temperature}*
+💧 Humidity : *${Humidity}*
+🌬️ Wind : *${Wind}*
 
 ` }, { quoted: msg });
 
