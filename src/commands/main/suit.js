@@ -1,10 +1,11 @@
 const choices = ['batu', 'gunting', 'kertas'];
 const { addPoint } = require('./points');
+const { commandPrefix } = require('../../../config');
 
 module.exports = {
   name: 'suit',
   description: 'Suit: Batu, Gunting, Kertas (Rock Paper Scissors) vs Bot!',
-  usage: '.suit <batu|gunting|kertas>',
+  usage: `${commandPrefix}suit <batu|gunting|kertas>`,
   async execute(sock, msg, args) {
     const user = args[0]?.toLowerCase();
     if (!choices.includes(user)) {

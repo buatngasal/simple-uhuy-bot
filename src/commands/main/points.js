@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const dbPath = path.join(__dirname, '../../../points.json');
+const { commandPrefix } = require('../../../config');
 
 function load() {
   try {
@@ -61,7 +62,7 @@ module.exports = {
   getLeaderboard,
   name: 'points',
   description: 'Cek poin kamu atau leaderboard grup',
-  usage: '.points <top|leaderboard>',
+  usage: `${commandPrefix}points <top|leaderboard>`,
   async execute(sock, msg, args) {
     try {
       const id = msg.key.remoteJid;

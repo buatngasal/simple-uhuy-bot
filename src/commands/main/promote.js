@@ -1,4 +1,5 @@
 const { isAdmin } = require('./utils');
+const { commandPrefix } = require('../../../config');
 
 function formatJid(input) {
   if (!input) return null;
@@ -12,6 +13,7 @@ function formatJid(input) {
 module.exports = {
   name: 'promote',
   description: 'Promote a member to admin (admin only)',
+  usage: `${commandPrefix}promote @member`,
   async execute(sock, msg, args) {
     const jid = msg.key.remoteJid;
     const sender = msg.key.participant || msg.participant;

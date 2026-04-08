@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { isAdmin } = require('./utils');
 const dbPath = path.join(__dirname, '../../../autoresponder.json');
+const { commandPrefix } = require('../../../config');
 
 function load() { 
   try {
@@ -24,7 +25,7 @@ function save(data) {
 module.exports = {
   name: 'deltrigger',
   description: 'Delete auto-reply trigger (admin only)',
-  usage: '.deltrigger <trigger>',
+  usage: `${commandPrefix}deltrigger <trigger>`,
   async execute(sock, msg, args) {
     try {
       const id = msg.key.remoteJid;
@@ -44,7 +45,7 @@ module.exports = {
       
       if (!args.length) {
         return sock.sendMessage(id, { 
-          text: '❌ Usage: .deltrigger <trigger>\n\n💡 Example:\n.deltrigger hello' 
+          text: `❌ Usage: ${commandPrefix}deltrigger <trigger>\n\n💡 Example:\n${commandPrefix}deltrigger hello` 
         }, { quoted: msg });
       }
       

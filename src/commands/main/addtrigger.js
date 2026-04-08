@@ -3,6 +3,7 @@ const path = require('path');
 const { isAdmin } = require('./utils');
 const { downloadMediaMessage } = require('@whiskeysockets/baileys');
 const dbPath = path.join(__dirname, '../../../autoresponder.json');
+const { commandPrefix } = require('../../../config');
 
 function load() { 
   try {
@@ -25,7 +26,7 @@ function save(data) {
 module.exports = {
   name: 'addtrigger',
   description: 'Add auto-reply trigger (admin only)',
-  usage: '.addtrigger <trigger>|<response> OR reply to sticker with .addtrigger <trigger>',
+  usage: `${commandPrefix}addtrigger <trigger>|<response> OR reply to sticker with ${commandPrefix}addtrigger <trigger>`,
   async execute(sock, msg, args) {
     try {
       const id = msg.key.remoteJid;
@@ -49,7 +50,7 @@ module.exports = {
       if (quotedMsg && quotedKey) {
         if (!args.length) {
           return sock.sendMessage(id, { 
-            text: '❌ Usage: Reply to any message with .addtrigger <trigger>\n\n💡 Example: Reply to a sticker with .addtrigger hello' 
+            text: `❌ Usage: Reply to any message with ${commandPrefix}addtrigger <trigger>\n\n💡 Example: Reply to a sticker with ${commandPrefix}addtrigger hello` 
           }, { quoted: msg });
         }
         const trigger = args.join(' ').toLowerCase();
@@ -109,7 +110,7 @@ module.exports = {
             let errorMessage = '❌ Error: Failed to download media.';
             
             if (error.message.includes('ENOTFOUND') || error.message.includes('getaddrinfo')) {
-              errorMessage = '❌ Network Error: Cannot connect to WhatsApp servers.\n\n💡 Solutions:\n• Check your internet connection\n• Try using a different network\n• Use text triggers instead: .addtrigger hello|Your response here\n• Contact your network administrator';
+              errorMessage = `❌ Network Error: Cannot connect to WhatsApp servers.\n\n💡 Solutions:\n• Check your internet connection\n• Try using a different network\n• Use text triggers instead: ${commandPrefix}addtrigger hello|Your response here\n• Contact your network administrator`;
             } else if (error.message.includes('timeout')) {
               errorMessage = '❌ Timeout Error: Media download timed out. Please try again.';
             } else if (error.message.includes('ECONNREFUSED')) {
@@ -126,7 +127,7 @@ module.exports = {
         const [trigger, ...respArr] = args.join(' ').split('|');
         if (!trigger || !respArr.length) {
           return sock.sendMessage(id, { 
-            text: '❌ Usage: .addtrigger <trigger>|<response>\n\n💡 Examples:\n.addtrigger hello|Hello! How can I help you?\n.addtrigger sticker|STICKER:https://example.com/image.jpg\n\nOR reply to a sticker with: .addtrigger <trigger>' 
+            text: `❌ Usage: ${commandPrefix}addtrigger <trigger>|<response>\n\n💡 Examples:\n${commandPrefix}addtrigger hello|Hello! How can I help you?\n${commandPrefix}addtrigger sticker|STICKER:https://example.com/image.jpg\n\nOR reply to a sticker with: ${commandPrefix}addtrigger <trigger>` 
           }, { quoted: msg });
         }
         

@@ -1,10 +1,11 @@
 const performanceMonitor = require('../../lib/performance-monitor');
 const { isAdmin } = require('./utils');
+const { commandPrefix } = require('../../../config');
 
 module.exports = {
   name: 'performance',
   description: 'Show bot performance metrics (Admin only)',
-  usage: '.performance [summary|full|export]',
+  usage: `${commandPrefix}performance [summary|full|export]`,
   async execute(sock, msg, args) {
     try {
       const isUserAdmin = await isAdmin(sock, msg.key.remoteJid, msg.key.participant || msg.key.remoteJid);

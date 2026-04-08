@@ -1,4 +1,5 @@
 const { isAdmin } = require('./utils');
+const { commandPrefix } = require('../../../config');
 
 function formatJid(input) {
   if (!input) return null;
@@ -12,6 +13,7 @@ function formatJid(input) {
 module.exports = {
   name: 'demote',
   description: 'Demote an admin to member (admin only)',
+  usage: `${commandPrefix}demote @member`,
   async execute(sock, msg, args) {
     const jid = msg.key.remoteJid;
     const sender = msg.key.participant || msg.participant;

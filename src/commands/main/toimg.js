@@ -3,17 +3,18 @@ const path = require('path');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 const { downloadMediaMessage } = require('@whiskeysockets/baileys');
+const { commandPrefix } = require('../../../config');
 
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 module.exports = {
   name: 'toimg',
   description: 'Convert sticker to image (PNG or JPG)',
-  usage: '.toimg (reply to sticker)',
+  usage: `${commandPrefix}toimg (reply to sticker)`,
   async execute(sock, msg, args) {
     const quoted = msg.message.extendedTextMessage?.contextInfo?.quotedMessage;
     if (!quoted || !quoted.stickerMessage) {
-      return sock.sendMessage(msg.key.remoteJid, { text: 'Reply to a sticker with .toimg' }, { quoted: msg });
+      return sock.sendMessage(msg.key.remoteJid, { text: `Reply to a sticker with ${commandPrefix}toimg` }, { quoted: msg });
     }
     const format = (args[0] && ['jpg', 'jpeg'].includes(args[0].toLowerCase())) ? 'jpg' : 'png';
     const tempDir = path.join(__dirname, '../temp');

@@ -9,7 +9,6 @@ module.exports = {
 📱 Number: wa.me/${ownerNumber}
 👤 Name: Uhuy-Bot
 🌐 GitHub: github.com/buatngasal
-💬 Note: Nothing last forever, we can change the future [Alucrot 1945]
 
 _Bot created with ❤️ by Uhuy-Bot_`;
     await sock.sendMessage(msg.key.remoteJid, { text: info }, { quoted: msg });

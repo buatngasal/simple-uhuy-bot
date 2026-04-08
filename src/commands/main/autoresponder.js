@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const dbPath = path.join(__dirname, '../../../autoresponder.json');
+const { commandPrefix } = require('../../../config');
 
 function load() { 
   try {
@@ -23,7 +24,7 @@ function save(data) {
 module.exports = {
   name: 'autoresponder',
   description: 'Set custom auto-reply triggers (admin only)',
-  usage: '.addtrigger <trigger>|<response> | .deltrigger <trigger> | .listtriggers',
+  usage: `${commandPrefix}addtrigger <trigger>|<response> | ${commandPrefix}deltrigger <trigger> | ${commandPrefix}listtriggers`,
   async execute(sock, msg, args) {
     try {
       const id = msg.key.remoteJid;
@@ -55,7 +56,7 @@ module.exports = {
       if (cmd === 'deltrigger') {
         if (!isAdmin) return sock.sendMessage(id, { text: 'Admin only.' }, { quoted: msg });
         const trigger = args.slice(1).join(' ').toLowerCase();
-        if (!trigger) return sock.sendMessage(id, { text: 'Usage: .deltrigger <trigger>' }, { quoted: msg });
+        if (!trigger) return sock.sendMessage(id, { text: `Usage: ${commandPrefix}deltrigger <trigger>` }, { quoted: msg });
         if (!db[id] || !db[id][trigger]) return sock.sendMessage(id, { text: 'Trigger not found.' }, { quoted: msg });
         delete db[id][trigger];
         save(db);
@@ -69,7 +70,7 @@ module.exports = {
         return sock.sendMessage(id, { text }, { quoted: msg });
       }
       
-      return sock.sendMessage(id, { text: 'Usage: .addtrigger <trigger>|<response> | .deltrigger <trigger> | .listtriggers' }, { quoted: msg });
+      return sock.sendMessage(id, { text: `Usage: ${commandPrefix}addtrigger <trigger>|<response> | ${commandPrefix}deltrigger <trigger> | ${commandPrefix}listtriggers` }, { quoted: msg });
     } catch (error) {
       console.error('Autoresponder command error:', error);
       return sock.sendMessage(msg.key.remoteJid, { text: '❌ Error: Failed to process autoresponder command.' }, { quoted: msg });
@@ -90,7 +91,7 @@ module.exports = {
 module.exports.addtrigger = {
   name: 'addtrigger',
   description: 'Add auto-reply trigger (admin only)',
-  usage: '.addtrigger <trigger>|<response>',
+  usage: `${commandPrefix}addtrigger <trigger>|<response>`,
   async execute(sock, msg, args) {
     try {
       const id = msg.key.remoteJid;
@@ -100,7 +101,7 @@ module.exports.addtrigger = {
       if (!isAdmin) return sock.sendMessage(id, { text: 'Admin only.' }, { quoted: msg });
       
       const [trigger, ...respArr] = args.join(' ').split('|');
-      if (!trigger || !respArr.length) return sock.sendMessage(id, { text: 'Usage: .addtrigger <trigger>|<response>' }, { quoted: msg });
+      if (!trigger || !respArr.length) return sock.sendMessage(id, { text: `Usage: ${commandPrefix}addtrigger <trigger>|<response>` }, { quoted: msg });
       
       // Input validation
       if (trigger.length < 1 || trigger.length > 100) {
@@ -126,7 +127,7 @@ module.exports.addtrigger = {
 module.exports.deltrigger = {
   name: 'deltrigger',
   description: 'Delete auto-reply trigger (admin only)',
-  usage: '.deltrigger <trigger>',
+  usage: `${commandPrefix}deltrigger <trigger>`,
   async execute(sock, msg, args) {
     try {
       const id = msg.key.remoteJid;
@@ -136,7 +137,7 @@ module.exports.deltrigger = {
       if (!isAdmin) return sock.sendMessage(id, { text: 'Admin only.' }, { quoted: msg });
       
       const trigger = args.join(' ').toLowerCase();
-      if (!trigger) return sock.sendMessage(id, { text: 'Usage: .deltrigger <trigger>' }, { quoted: msg });
+      if (!trigger) return sock.sendMessage(id, { text: `Usage: ${commandPrefix}deltrigger <trigger>` }, { quoted: msg });
       
       if (!db[id] || !db[id][trigger]) return sock.sendMessage(id, { text: '❌ Trigger not found.' }, { quoted: msg });
       
@@ -153,7 +154,7 @@ module.exports.deltrigger = {
 module.exports.listtriggers = {
   name: 'listtriggers',
   description: 'List all auto-reply triggers',
-  usage: '.listtriggers',
+  usage: `${commandPrefix}listtriggers`,
   async execute(sock, msg, args) {
     try {
       const id = msg.key.remoteJid;

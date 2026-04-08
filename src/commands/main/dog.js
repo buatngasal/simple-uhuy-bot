@@ -3,7 +3,6 @@ const axios = require('axios');
 module.exports = {
   name: 'dog',
   description: 'Send a random dog image',
-  usage: '.dog',
   async execute(sock, msg, args) {
     try {
       const { data } = await axios.get('https://dog.ceo/api/breeds/image/random');

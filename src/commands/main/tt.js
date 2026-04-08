@@ -2,14 +2,15 @@ const axios = require('axios');
 const fs = require('fs');
 const { Downloader } = require('abot-scraper');
 const downloader = new Downloader();
+const { commandPrefix } = require('../../../config');
 
 module.exports = {
   name: 'tt',
   description: 'Download video TikTok tanpa watermark',
-  usage: '.tt <tiktok_url>',
+  usage: `${commandPrefix}tt <tiktok_url>`,
   async execute(sock, msg, args) {
     const url = args[0];
-    if (!url) return await sock.sendMessage(msg.key.remoteJid, { text: 'Masukkan link TikTok!\nContoh: .tiktok https://vt.tiktok.com/...' }, { quoted: msg });
+    if (!url) return await sock.sendMessage(msg.key.remoteJid, { text: `Masukkan link TikTok!\nContoh: ${commandPrefix}tt https://vt.tiktok.com/...` }, { quoted: msg });
     try {
       const result = await downloader.tiktokDownloader(url);
       if (result.status === 200 && result.result && result.result.video) {
@@ -57,4 +58,4 @@ module.exports = {
 };
 
 // [fix] fitur tiktok ✓
-// jika terjadi undefined downloader.tiktokDownloader, maka hapus dulu folder abot-scraper di node_modules, lalu install ulang npm: $ npm install abot-scraper@1.6.2
+// jika terjadi undefined downloader.tiktokDownloader, maka hapus dulu folder abot-scraper di node_modules, lalu install ulang dengan versi: $ npm install abot-scraper@1.6.2

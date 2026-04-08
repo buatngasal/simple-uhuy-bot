@@ -1,11 +1,9 @@
 const axios = require('axios');
 const { formatError } = require('../../lib/response-helper');
-const { commandPrefix } = require('../../../config');
 
 module.exports = {
   name: 'gempa',
   description: 'Menampilkan data gempa bumi terbaru dari BMKG',
-  usage: `${commandPrefix}gempa`,
   async execute(sock, msg, args) {
     const url = 'https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json';
     

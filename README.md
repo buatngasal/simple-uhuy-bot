@@ -17,7 +17,6 @@ A versatile WhatsApp bot for downloading, news, group tools, and more!
 **Downloader:**
 ```
 .tt <url>          TikTok Video
-.yt <url>          YouTube Video
 .ytmp3 <url>       YouTube MP3
 .yts <query>       YouTube Search
 ```
@@ -33,8 +32,8 @@ A versatile WhatsApp bot for downloading, news, group tools, and more!
 ```
 .add <number>      Add member
 .kick <number>     Remove member
-.promote <@tag>    Add as admin
-.demote <@tag>     Remove as admin
+.promote @member   Add as admin
+.demote @member    Remove as admin
 ```
 
 **Admin Tools:**

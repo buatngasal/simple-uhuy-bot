@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { isAdmin } = require('./utils');
 const dbPath = path.join(__dirname, '../../../autoresponder.json');
+const { commandPrefix } = require('../../../config');
 
 function load() { 
   try {
@@ -16,7 +17,7 @@ function load() {
 module.exports = {
   name: 'listtriggers',
   description: 'List all auto-reply triggers (admin only)',
-  usage: '.listtriggers',
+  usage: `${commandPrefix}listtriggers`,
   async execute(sock, msg, args) {
     try {
       const id = msg.key.remoteJid;
@@ -36,7 +37,7 @@ module.exports = {
       
       if (!db[id] || Object.keys(db[id]).length === 0) {
         return sock.sendMessage(id, { 
-          text: '📝 No triggers found for this group.\n\n💡 Use .addtrigger to add new triggers.' 
+          text: `📝 No triggers found for this group.\n\n💡 Use ${commandPrefix}addtrigger to add new triggers.` 
         }, { quoted: msg });
       }
       

@@ -2,18 +2,19 @@ const axios = require('axios');
 const { Downloader } = require('abot-scraper');
 const { formatError, formatLoading, isValidYouTubeUrl } = require('../../lib/response-helper');
 const downloader = new Downloader();
+const { commandPrefix } = require('../../../config');
 
 module.exports = {
   name: 'ytmp3',
   description: 'Download audio YouTube (MP3)',
-  usage: '.ytmp3 <youtube_url>',
+  usage: `${commandPrefix}ytmp3 <youtube_url>`,
   async execute(sock, msg, args) {
     const url = args[0];
 
     // Validate URL
     if (!url || !isValidYouTubeUrl(url)) {
       return await sock.sendMessage(msg.key.remoteJid, {
-        text: formatError('Invalid YouTube URL', 'Usage: .ytmp3 https://youtu.be/...')
+        text: formatError('Invalid YouTube URL', `Usage: ${commandPrefix}ytmp3 https://youtu.be/...`)
       }, { quoted: msg });
     }
 
@@ -79,4 +80,4 @@ module.exports = {
   }
 };
 
-// [fix] yt downloader to mp3 ✓
+// [fix] youtube downloader to mp3 ✓

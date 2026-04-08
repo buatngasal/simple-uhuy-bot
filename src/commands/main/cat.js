@@ -3,7 +3,6 @@ const axios = require('axios');
 module.exports = {
   name: 'cat',
   description: 'Send a random cat image',
-  usage: '.cat',
   async execute(sock, msg, args) {
     try {
       const { data } = await axios.get('https://api.thecatapi.com/v1/images/search');

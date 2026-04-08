@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { commandPrefix } = require('../../../config');
 
 module.exports = {
   name: 'help',
@@ -19,7 +20,7 @@ _Type .help <command> to get details about a specific command._`;
     } catch (e) {
       return sock.sendMessage(msg.key.remoteJid, { text: `No help found for *${cmdName}*.` }, { quoted: msg });
     }
-    let helpText = `*Command: .${cmdName}*\n`;
+    let helpText = `*Command: ${commandPrefix}${cmdName}*\n`;
     helpText += cmdFile.description ? `_${cmdFile.description}_\n` : '';
     if (cmdFile.usage) helpText += `\n*Usage:*\n${cmdFile.usage}\n`;
     return sock.sendMessage(msg.key.remoteJid, { text: helpText }, { quoted: msg });

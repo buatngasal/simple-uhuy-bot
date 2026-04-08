@@ -4,13 +4,14 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 const { downloadMediaMessage } = require('@whiskeysockets/baileys');
+const { commandPrefix } = require('../../../config');
 
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 module.exports = {
   name: 's',
   description: 'Convert image, video, or image URL to sticker',
-  usage: '.s (reply to image/video or send image URL)',
+  usage: `${commandPrefix}s (reply to image/video or send image URL)`,
   async execute(sock, msg, args) {
     let tempInput = null;
     let tempOutput = null;
@@ -50,7 +51,7 @@ module.exports = {
           return sock.sendMessage(msg.key.remoteJid, { text: 'Gagal mengunduh gambar dari URL.' }, { quoted: msg });
         }
       } else {
-        return sock.sendMessage(msg.key.remoteJid, { text: 'Reply to an image/video or send an image URL with .sticker' }, { quoted: msg });
+        return sock.sendMessage(msg.key.remoteJid, { text: `Reply to an image/video or send an image URL with ${commandPrefix}s` }, { quoted: msg });
       }
       
       const tempDir = path.join(__dirname, '../temp');

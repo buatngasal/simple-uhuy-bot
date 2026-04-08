@@ -1,11 +1,9 @@
 const axios = require('axios');
 const { formatError } = require('../../lib/response-helper');
-const { commandPrefix } = require('../../../config');
 
 module.exports = {
   name: 'myip',
   description: 'Menampilkan informasi detail alamat IP',
-  usage: `${commandPrefix}myip`,
   async execute(sock, msg, args) {
 
     const url = 'http://ip-api.com/json'; 
