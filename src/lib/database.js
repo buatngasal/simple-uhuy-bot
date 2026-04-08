@@ -12,7 +12,6 @@ class Database {
     // Database file paths from config
     this.files = {
       schedules: 'schedules.json',
-      birthdays: 'birthdays.json',
       points: 'points.json',
       autoresponder: 'autoresponder.json',
       menfess: 'menfess.json',
@@ -219,7 +218,7 @@ class Database {
    * Preload frequently used databases
    */
   async preload() {
-    const frequentDbs = ['points', 'autoresponder', 'menfess'];
+    const frequentDbs = ['schedules', 'points', 'autoresponder', 'menfess'];
     const filePaths = frequentDbs.map(db => this.getFilePath(db));
     await cache.preload(filePaths);
   }

@@ -72,41 +72,6 @@ async function pollBackground(sock) {
 
   backgroundIntervals.push(scheduleInterval);
 
-  // Birthday Reminders - Optimized
-  const birthdayInterval = setInterval(async () => {
-    try {
-      const db = await database.load('birthdays');
-      const now = new Date();
-      const mmdd = ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2);
-
-      const birthdayMessages = [];
-      for (const user in db) {
-        if (db[user] === mmdd) {
-          const jid = user.includes('@g.us') ? user : null;
-          const mention = user;
-          if (jid) {
-            birthdayMessages.push({ jid, mention });
-          }
-        }
-      }
-
-      // Send birthday messages concurrently
-      if (birthdayMessages.length > 0) {
-        await Promise.allSettled(
-          birthdayMessages.map(({ jid, mention }) =>
-            sock.sendMessage(jid, {
-              text: `🎂 Selamat ulang tahun @${mention.split('@')[0]}!`,
-              mentions: [mention]
-            }).catch(error => console.error(`Error sending birthday message to ${jid}:`, error.message))
-          )
-        );
-      }
-    } catch (error) {
-      console.error('Error in birthday reminders polling:', error.message);
-    }
-  }, config.polling.birthdayReminders);
-
-  backgroundIntervals.push(birthdayInterval);
 }
 
 // Function to clear all background intervals

@@ -39,17 +39,15 @@ imagechanger/
 ai-edit/
 
 # Data files (keep only example/template)
-autoresponder.json
-points.json
-menfess.json
 schedules.json
-birthdays.json
+points.json
+autoresponder.json
+menfess.json
 # Provide example if needed
-autoresponder.example.json
-points.example.json
-menfess.example.json
 schedules.example.json
-birthdays.example.json
+points.example.json
+autoresponder.example.json
+menfess.example.json
 
 # Misc
 web-server.js

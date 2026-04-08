@@ -8,7 +8,6 @@ module.exports = {
   // Database file paths
   databaseFiles: {
     schedules: 'schedules.json',
-    birthdays: 'birthdays.json',
     points: 'points.json',
     autoresponder: 'autoresponder.json',
     menfess: 'menfess.json',
@@ -17,7 +16,6 @@ module.exports = {
   // Background polling intervals (in milliseconds)
   polling: {
     scheduledMessages: 60 * 1000, // 1 minute
-    birthdayReminders: 60 * 1000 // 1 minute
   },
 
   // API settings
