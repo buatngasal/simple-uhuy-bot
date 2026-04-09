@@ -7,76 +7,113 @@ const { commandPrefix } = require('../../../config');
 
 ffmpeg.setFfmpegPath(ffmpegPath);
 
+// Fungsi untuk membungkus teks agar tidak melebar keluar gambar
+function wrapText(text, maxChars = 20) {
+  const words = text.split(' ');
+  let lines = [];
+  let currentLine = '';
+
+  words.forEach(word => {
+    if ((currentLine + word).length <= maxChars) {
+      currentLine += (currentLine ? ' ' : '') + word;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  });
+  lines.push(currentLine);
+  return lines.join('\n');
+}
+
 module.exports = {
   name: 'smeme',
-  description: 'Membuat stiker meme dari gambar/video yang di-reply',
+  description: 'Membuat stiker meme dari gambar/video dengan font Impact',
   usage: `${commandPrefix}smeme teks atas | teks bawah`,
   async execute(sock, msg, args) {
     let tempInput = null;
     let tempOutput = null;
-    
+
     try {
       const quoted = msg.message.extendedTextMessage?.contextInfo?.quotedMessage;
       if (!quoted || (!quoted.imageMessage && !quoted.videoMessage)) {
-        return sock.sendMessage(msg.key.remoteJid, { text: `Balas gambar atau video pendek dengan: *${commandPrefix}smeme teks atas | teks bawah*` }, { quoted: msg });
+        return sock.sendMessage(msg.key.remoteJid, { text: `Balas gambar/video pendek: *${commandPrefix}smeme atas | bawah*` }, { quoted: msg });
       }
 
-      // 1. Path Font (src/fonts/impact.ttf)
-      const fontPath = path.join(__dirname, '../../../src/fonts/impact.ttf').replace(/\\/g, '/').replace(/:/g, '\\:');
+      // 1. PATH FONT - Trik khusus Windows agar FFmpeg mengenali drive letter (C\:/...)
+      const absoluteFontPath = path.resolve(__dirname, '../../../src/fonts/impact.ttf').replace(/\\/g, '/');
+      const escapedFontPath = absoluteFontPath.replace(/:/g, '\\:');
 
-      // 2. Ambil Teks Meme
+      if (!fs.existsSync(absoluteFontPath)) {
+        return sock.sendMessage(msg.key.remoteJid, { text: '❌ Font impact.ttf tidak ditemukan!' }, { quoted: msg });
+      }
+
+      // 2. PROSES TEKS
       const fullText = args.join(' ');
-      const [topText, bottomText] = fullText.split('|').map(t => t ? t.trim().toUpperCase() : '');
+      let [topText, bottomText] = fullText.split('|').map(t => t ? t.trim().toUpperCase() : '');
+      
+      // Bungkus teks jika terlalu panjang (max 15-20 karakter per baris)
+      if (topText) topText = wrapText(topText, 18).replace(/'/g, "'\\\\\\''");
+      if (bottomText) bottomText = wrapText(bottomText, 18).replace(/'/g, "'\\\\\\''");
 
-      // 3. Download Media
-      const mediaType = quoted.imageMessage ? 'image' : 'video';
+      // 3. DOWNLOAD MEDIA
+      const isVideo = !!quoted.videoMessage;
       const stream = await downloadMediaMessage({ key: msg.key, message: quoted }, sock);
-      const chunks = [];
-      for await (const chunk of stream) chunks.push(chunk);
-      const buffer = Buffer.concat(chunks);
+      const buffer = [];
+      for await (const chunk of stream) buffer.push(chunk);
+      const mediaBuffer = Buffer.concat(buffer);
 
       const tempDir = path.join(__dirname, '../temp');
       if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
-      
-      tempInput = path.join(tempDir, `${Date.now()}.${mediaType === 'image' ? 'jpg' : 'mp4'}`);
-      tempOutput = path.join(tempDir, `${Date.now()}.webp`);
-      fs.writeFileSync(tempInput, buffer);
 
-      // 4. Proses FFmpeg
-      const videoFilters = [
+      tempInput = path.join(tempDir, `in_${Date.now()}.${isVideo ? 'mp4' : 'jpg'}`);
+      tempOutput = path.join(tempDir, `out_${Date.now()}.webp`);
+      fs.writeFileSync(tempInput, mediaBuffer);
+
+      // 4. FILTER FFMPEG
+      // Gunakan :line_spacing untuk mengatur jarak antar baris jika teks di-wrap
+      const baseFilters = [
         'scale=512:512:force_original_aspect_ratio=decrease',
         'pad=512:512:(ow-iw)/2:(oh-ih)/2:color=white@0'
       ];
 
       if (topText) {
-        videoFilters.push(`drawtext=fontfile='${fontPath}':text='${topText}':fontsize=40:fontcolor=white:borderw=2:bordercolor=black:x=(w-text_w)/2:y=25`);
+        baseFilters.push(`drawtext=fontfile='${escapedFontPath}':text='${topText}':fontsize=45:fontcolor=white:borderw=3:bordercolor=black:line_spacing=5:x=(w-text_w)/2:y=25`);
       }
       if (bottomText) {
-        videoFilters.push(`drawtext=fontfile='${fontPath}':text='${bottomText}':fontsize=40:fontcolor=white:borderw=2:bordercolor=black:x=(w-text_w)/2:y=h-text_h-25`);
+        baseFilters.push(`drawtext=fontfile='${escapedFontPath}':text='${bottomText}':fontsize=45:fontcolor=white:borderw=3:bordercolor=black:line_spacing=5:x=(w-text_w)/2:y=h-text_h-25`);
       }
 
       await new Promise((resolve, reject) => {
         ffmpeg(tempInput)
+          .complexFilter(baseFilters.join(','))
           .outputOptions([
             '-vcodec', 'libwebp',
-            '-vf', videoFilters.join(','),
-            '-lossless', '1', '-q:v', '50', '-loop', '0'
+            '-lossless', '1',
+            '-q:v', '45',
+            '-loop', '0',
+            '-an',
+            '-vsync', '0',
+            '-preset', 'default'
           ])
-          .save(tempOutput)
           .on('end', resolve)
-          .on('error', reject);
+          .on('error', (err) => {
+            console.error('FFmpeg Error:', err.message);
+            reject(err);
+          })
+          .save(tempOutput);
       });
-      
+
       await sock.sendMessage(msg.key.remoteJid, { sticker: fs.readFileSync(tempOutput) }, { quoted: msg });
-      
+
     } catch (error) {
       console.error('Smeme Error:', error);
-      await sock.sendMessage(msg.key.remoteJid, { text: '❌ Gagal membuat stiker meme.' }, { quoted: msg });
+      await sock.sendMessage(msg.key.remoteJid, { text: '❌ Terjadi kesalahan saat memproses stiker.' }, { quoted: msg });
     } finally {
+      // Cleanup
       if (tempInput && fs.existsSync(tempInput)) fs.unlinkSync(tempInput);
       if (tempOutput && fs.existsSync(tempOutput)) fs.unlinkSync(tempOutput);
     }
-  },
+  }
 };
 
-// [fix] sticker meme ✓
+// [fix] sticker meme
