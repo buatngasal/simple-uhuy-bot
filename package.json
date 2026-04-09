@@ -16,18 +16,23 @@
   "author": "Uhuy-Bot",
   "license": "MIT",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@whiskeysockets/baileys": "^6.7.18",
     "abot-scraper": "1.6.2",
     "axios": "^1.8.4",
     "chalk": "^4.1.2",
     "chokidar": "^4.0.3",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
     "ffmpeg-static": "^5.2.0",
     "fluent-ffmpeg": "^2.1.3",
+    "multer": "^2.1.1",
     "node-webpmux": "^3.2.1",
     "qrcode-terminal": "^0.12.0",
     "rss-parser": "^3.13.0",
     "sharp": "^0.32.6",
-    "wa-sticker-formatter": "^4.4.4"
+    "wa-sticker-formatter": "^4.4.4",
+    "ytdl-core": "npm:@distube/ytdl-core@^4.16.0"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
