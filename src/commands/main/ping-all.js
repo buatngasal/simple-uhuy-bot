@@ -1,7 +1,7 @@
 const performanceMonitor = require('../../lib/performance-monitor');
 
 module.exports = {
-  name: 'ping-full',
+  name: 'ping-all',
   description: 'Full bot performance check',
   async execute(sock, msg) {
     try {

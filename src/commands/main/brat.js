@@ -24,7 +24,7 @@ if (fs.existsSync(appleEmojiPath)) {
 
 module.exports = {
     name: 'brat',
-    description: 'Brat sticker dengan font Arial Narrow & Emoji Berwarna',
+    description: 'Brat meme sticker',
     usage: `${commandPrefix}brat <teks>`,
     async execute(sock, msg, args) {
         let tempOutput = null;
