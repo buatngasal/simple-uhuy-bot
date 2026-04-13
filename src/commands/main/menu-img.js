@@ -5,7 +5,7 @@ const { commandPrefix } = require('../../../config');
 
 module.exports = {
   name: 'menu-img',
-  description: 'Show command list with a cat image',
+  description: 'Display bot commands with a cat thumbnail',
   async execute(sock, msg, args) {
     // 1. Fungsi rekursif untuk mengambil semua command
     const getFilesRecursively = (dir, fileList = []) => {
@@ -65,4 +65,4 @@ Ketik *${commandPrefix}help <command>* untuk detail.`;
   },
 };
 
-// [fix] fitur menu gambar kucing ✓
+// [fix] fitur menu dengan gambar kucing ✓

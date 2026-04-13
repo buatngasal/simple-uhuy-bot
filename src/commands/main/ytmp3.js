@@ -6,78 +6,71 @@ const { commandPrefix } = require('../../../config');
 
 module.exports = {
   name: 'ytmp3',
-  description: 'Download audio YouTube (MP3)',
+  description: 'Download audio YouTube (MP3 Document)',
   usage: `${commandPrefix}ytmp3 <youtube_url>`,
   async execute(sock, msg, args) {
     const url = args[0];
 
-    // Validate URL
     if (!url || !isValidYouTubeUrl(url)) {
       return await sock.sendMessage(msg.key.remoteJid, {
-        text: formatError('Invalid YouTube URL', `Usage: ${commandPrefix}ytmp3 https://youtu.be/...`)
+        text: formatError('URL Tidak Valid', `Gunakan: ${commandPrefix}ytmp3 https://youtu.be/...`)
       }, { quoted: msg });
     }
 
     try {
       const result = await downloader.ytMp3Downloader(url);
-      const audioUrl =
-        result.result?.downloadUrl ||
-        result.downloadUrl ||
-        result.result?.url ||
-        result.url;
+      const audioUrl = result.result?.downloadUrl || result.downloadUrl || result.result?.url || result.url;
+      
+      // Ambil judul video, bersihkan karakter aneh agar aman jadi nama file
+      const rawTitle = result.result?.title || result.title || 'youtube_audio';
+      const cleanTitle = rawTitle.replace(/[\\/:*?"<>|]/g, '');
 
       if (!audioUrl) {
         return await sock.sendMessage(msg.key.remoteJid, {
-          text: formatError('Download failed', 'Could not find audio download link')
+          text: formatError('Gagal', 'Link download tidak ditemukan')
         }, { quoted: msg });
       }
 
       await sock.sendMessage(msg.key.remoteJid, {
-        text: formatLoading('Downloading audio...')
+        text: formatLoading('Sedang mengunduh audio...')
       }, { quoted: msg });
 
       const audioRes = await axios.get(audioUrl, {
         responseType: 'arraybuffer',
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          'User-Agent': 'Mozilla/5.0...',
           'Accept': 'audio/mpeg'
         },
-        maxRedirects: 5,
-        timeout: 60000 // 60 second timeout
+        timeout: 60000 
       });
 
-      // Validate file size
       if (audioRes.data.length < 10 * 1024) {
         return await sock.sendMessage(msg.key.remoteJid, {
-          text: formatError('Download failed', 'Audio file too small, likely an error')
+          text: formatError('Gagal', 'File audio rusak atau terlalu kecil')
         }, { quoted: msg });
       }
 
-      if (audioRes.data.length > 100 * 1024 * 1024) {
-        return await sock.sendMessage(msg.key.remoteJid, {
-          text: formatError('File too large', 'Audio exceeds WhatsApp 100MB limit')
-        }, { quoted: msg });
-      }
-
+      // Mengirim sebagai DOKUMEN agar judul muncul otomatis
       await sock.sendMessage(
         msg.key.remoteJid,
         {
-          audio: Buffer.from(audioRes.data),
+          document: Buffer.from(audioRes.data),
           mimetype: 'audio/mpeg',
-          fileName: (result.result?.title || result.title || 'youtube') + '.mp3',
-          ptt: false
+          fileName: `${cleanTitle}.mp3`, // Judul otomatis di sini
+          caption: `Selesai: ${cleanTitle}`
         },
         { quoted: msg }
       );
+
     } catch (e) {
       console.error('ytmp3 error:', e.message);
       await sock.sendMessage(
         msg.key.remoteJid,
-        { text: formatError('Download failed', e.message) },
+        { text: formatError('Terjadi Kesalahan', e.message) },
         { quoted: msg }
       );
     }
   }
 };
 
-// [fix] youtube downloader to mp3 ✓
+// [fix] download youtube as MP3 file ✓

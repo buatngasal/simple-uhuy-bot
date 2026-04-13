@@ -4,17 +4,17 @@ const { commandPrefix } = require('../../../config');
 
 module.exports = {
   name: 'menu',
-  description: 'Show command list',
+  description: 'Show available bot commands',
   async execute(sock, msg, args) {
-    // Fungsi untuk mengambil file secara rekursif
+    // 1. Fungsi rekursif untuk mengambil semua command
     const getFilesRecursively = (dir, fileList = []) => {
+      if (!fs.existsSync(dir)) return fileList;
       const files = fs.readdirSync(dir);
       files.forEach((file) => {
         const filePath = path.join(dir, file);
         if (fs.statSync(filePath).isDirectory()) {
           getFilesRecursively(filePath, fileList);
         } else {
-          // Hanya ambil nama file (tanpa ekstensi .js jika perlu)
           const name = path.parse(file).name;
           fileList.push(`${commandPrefix}${name}`);
         }
@@ -22,9 +22,9 @@ module.exports = {
       return fileList;
     };
 
-    // Tentukan path ke direktori src/commands/main
-    // Sesuaikan path ini dengan posisi file allmenu.js
+    // 2. Tentukan path direktori commands dan path gambar thumbnail
     const dirPath = path.join(__dirname, '..', '..', 'commands', 'main');
+    const imagePath = path.join(__dirname, '..', '..', '..', 'uploads', 'Uhuybot.jpg');
     
     let commandFiles = [];
     try {
@@ -35,15 +35,43 @@ module.exports = {
 
     const menuList = commandFiles.map(cmd => `• ${cmd}`).join('\n');
 
-    const menu = `🦚 *Uhuy-Bot Menu*
+    // 3. Susun teks menu
+    const menuText = `🦚 *Uhuy-Bot Menu*
 
 *All Menu* 🍃
 ${menuList}
 
 Ketik *${commandPrefix}help <command>* untuk detail.`;
 
-    await sock.sendMessage(msg.key.remoteJid, { text: menu }, { quoted: msg });
+    try {
+      // 4. Baca gambar lokal sebagai Buffer
+      const thumbnail = fs.existsSync(imagePath) ? fs.readFileSync(imagePath) : null;
+
+      // 5. Kirim pesan teks dengan contextInfo externalAdReply
+      await sock.sendMessage(
+        msg.key.remoteJid, 
+        { 
+          text: menuText,
+          contextInfo: {
+            externalAdReply: {
+              title: "Uhuy-Bot Multi Device",
+              body: "A simple, lightweight bot for everyday use",
+              thumbnail: thumbnail,
+              sourceUrl: "https://github.com/buatngasal/simple-uhuy-bot",
+              mediaType: 1,
+              renderLargerThumbnail: true,
+              showAdAttribution: true
+            }
+          }
+        }, 
+        { quoted: msg }
+      );
+    } catch (e) {
+      console.error("Gagal mengirim menu dengan thumbnail:", e);
+      // Fallback jika terjadi error
+      await sock.sendMessage(msg.key.remoteJid, { text: menuText }, { quoted: msg });
+    }
   },
 };
 
-// [fix] fitur menu ✓
+// [fix] fitur menu dengan format dokumen ✓

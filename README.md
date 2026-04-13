@@ -17,8 +17,10 @@ A versatile WhatsApp bot for downloading, news, group tools, and more!
 **Downloader:**
 ```
 .tt <url>          TikTok Video
+.yt <url>          YouTube Video
 .ytmp3 <url>       YouTube MP3
 .yts <query>       YouTube Search
+.play <query>      Search and download YouTube by keyword
 ```
 
 **Tools:**
@@ -26,6 +28,7 @@ A versatile WhatsApp bot for downloading, news, group tools, and more!
 .s                 Sticker maker
 .toimg             Sticker to image
 .menfess           Send a message anonymously
+.brat              Brat sticker maker
 ```
 
 **Group:**
