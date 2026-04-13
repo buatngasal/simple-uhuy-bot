@@ -1,6 +1,6 @@
 # Uhuy-Bot WhatsApp 🤖
 
-A versatile WhatsApp bot for downloading, news, group tools, and more!
+A multi-purpose WhatsApp bot featuring media downloading, news updates, and group management tools.
 
 ---
 
