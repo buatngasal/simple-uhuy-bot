@@ -49,11 +49,7 @@ module.exports = {
       await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
 
       // Set viewport agar konsisten
-      await page.setViewport({ 
-        width: 2560,
-        height: 1440, 
-        deviceScaleFactor: 1.0 // Opsi Zoom Out 50% menggunakan Viewport
-      });
+      await page.setViewport({ width: 2560, height: 1440 });
 
       // Override beberapa property agar tidak terdeteksi
       await page.evaluateOnNewDocument(() => {
