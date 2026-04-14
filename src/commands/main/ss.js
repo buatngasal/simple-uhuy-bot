@@ -1,7 +1,5 @@
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-const fs = require('fs');
-const path = require('path');
 const { commandPrefix } = require('../../../config');
 
 // Gunakan plugin stealth untuk menghindari deteksi bot
@@ -9,93 +7,101 @@ puppeteer.use(StealthPlugin());
 
 module.exports = {
   name: 'ss',
-  description: 'Mengambil screenshot dari URL Website',
+  description: 'Screenshot Website Full Page HD (High Quality)',
   usage: `${commandPrefix}ss <url>`,
   async execute(sock, msg, args) {
-    let tempOutput = null;
+    // Pastikan args adalah string (mengambil elemen pertama jika args adalah array)
+    const url = Array.isArray(args) ? args[0] : args;
 
-    if (!args[0] || !args[0].startsWith('http')) {
+    if (!url || !url.startsWith('http')) {
       return sock.sendMessage(msg.key.remoteJid, { 
-        text: `Silakan masukkan URL yang valid.\nContoh: ${commandPrefix}ss https://google.com` 
+        text: `❌ Silakan masukkan URL yang valid.\nContoh: ${commandPrefix}ss https://google.com` 
       }, { quoted: msg });
     }
 
-    const url = args[0];
-    await sock.sendMessage(msg.key.remoteJid, { text: '🔄 Memproses screenshot...' }, { quoted: msg });
-
-    // Setup direktori temp
-    const tempDir = path.join(__dirname, '../temp');
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir, { recursive: true });
-    }
-    
-    tempOutput = path.join(tempDir, `ss-${Date.now()}.png`);
+    // Kirim pesan awal
+    const { key } = await sock.sendMessage(msg.key.remoteJid, { text: '🔄 Sedang memproses...' }, { quoted: msg });
 
     let browser;
     try {
       browser = await puppeteer.launch({
-        headless: "new", // "new" lebih sulit dideteksi daripada headless: true lama
+        headless: "new",
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
-          '--disable-blink-features=AutomationControlled', // Sembunyikan flag navigator.webdriver
-          '--window-size=1920,1080'
+          '--disable-dev-shm-usage', // Hemat RAM di VPS
+          '--disable-gpu',
+          '--no-zygote',
+          '--single-process' 
         ]
       });
-      
+
       const page = await browser.newPage();
       
-      // Set User Agent asli (pilih salah satu Chrome versi terbaru)
-      await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-
-      // Set viewport agar konsisten
-      await page.setViewport({ width: 2560, height: 1440 });
-
-      // Override beberapa property agar tidak terdeteksi
-      await page.evaluateOnNewDocument(() => {
-        Object.defineProperty(navigator, 'webdriver', { get: () => false });
+      // Set High Definition Viewport
+      await page.setViewport({ 
+        width: 1920, 
+        height: 1080, 
+        deviceScaleFactor: 1.5 // Hasil tajam tanpa membuat file terlalu raksasa
       });
 
-      // Buka URL dengan timeout yang cukup
+      // Buka URL
       await page.goto(url, { 
         waitUntil: 'networkidle2', 
-        timeout: 90000 // Beri waktu lebih lama (90 detik) untuk Cloudflare
+        timeout: 60000 
       });
 
-      // TRIK: Tunggu sebentar setelah load (mengatasi Cloudflare Turnstile yang butuh waktu verifikasi)
-      await new Promise(resolve => setTimeout(resolve, 10000)); 
+      // Jalankan Auto-Scroll agar Lazy Load (gambar yang muncul saat discroll) ter-render
+      await autoScroll(page);
 
-      // Ambil Screenshot
-      await page.screenshot({ 
-        path: tempOutput, 
-        fullPage: false,
-        type: 'png'
+      // Ambil Screenshot Full Page langsung ke Memory (Buffer)
+      const screenshotBuffer = await page.screenshot({ 
+        fullPage: true, 
+        type: 'jpeg', 
+        quality: 80 
       });
 
       await browser.close();
 
-      // Kirim hasil
-      const imageBuffer = fs.readFileSync(tempOutput);
+      // Hapus pesan "Sedang memproses" (opsional, tergantung library WA-mu) atau biarkan saja
+      // Kirim hasil screenshot
       await sock.sendMessage(msg.key.remoteJid, { 
-        image: imageBuffer, 
-        caption: `✅ Screenshot Berhasil\nURL: ${url}` 
+        image: screenshotBuffer, 
+        caption: `✅ *Screenshot Berhasil*\n🌐 URL: ${url}` 
       }, { quoted: msg });
 
     } catch (error) {
-      console.error('Screenshot error:', error);
+      console.error('SS Error:', error);
       if (browser) await browser.close();
-      await sock.sendMessage(msg.key.remoteJid, { text: '❌ Gagal. Website mungkin memiliki proteksi bot yang sangat kuat atau URL tidak dapat diakses.' }, { quoted: msg });
-    } finally {
-      // Hapus file sementara
-      try {
-        if (tempOutput && fs.existsSync(tempOutput)) {
-          fs.unlinkSync(tempOutput);
-        }
-      } catch (e) {
-        console.error('Error cleanup:', e.message);
-      }
+      await sock.sendMessage(msg.key.remoteJid, { 
+        text: `❌ Gagal mengambil screenshot. Website mungkin dilindungi atau koneksi lambat.` 
+      }, { quoted: msg });
     }
   },
 };
 
-// [fix] fitur screenshot web dengan URL
+/**
+ * Fungsi pembantu untuk scroll otomatis ke bawah halaman
+ * Memastikan semua gambar/konten yang baru muncul saat discroll terambil
+ */
+async function autoScroll(page) {
+  await page.evaluate(async () => {
+    await new Promise((resolve) => {
+      let totalHeight = 0;
+      const distance = 200; // Jarak scroll
+      const timer = setInterval(() => {
+        const scrollHeight = document.body.scrollHeight;
+        window.scrollBy(0, distance);
+        totalHeight += distance;
+
+        // Batasi maksimal 8000px untuk menghindari Memory Leak (crash)
+        if (totalHeight >= scrollHeight || totalHeight > 8000) {
+          clearInterval(timer);
+          resolve();
+        }
+      }, 100);
+    });
+  });
+}
+
+// [fix] full page website screenshot ✓
