@@ -1,4 +1,4 @@
-const emojiCommand = require('../../../src/commands/main/emoji'); // SESUAIKAN PATH ke file emoji.js kamu
+const emojiCommand = require('../commands/main/emoji'); // SESUAIKAN PATH ke file emoji.js kamu
 
 module.exports = {
     async handle(sock, msg) {

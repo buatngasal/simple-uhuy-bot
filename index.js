@@ -13,7 +13,7 @@ const cache = require('./src/lib/cache');
 const performanceMonitor = require('./src/lib/performance-monitor');
 const connectionHealth = require('./src/lib/connection-health');
 const menfessCmd = require('./src/commands/main/menfess');
-const autoEmoji = require('./src/commands/main/autoemoji');
+const autoEmoji = require('./src/lib/auto-emoji');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 
@@ -275,10 +275,9 @@ async function startBot() {
           if (isMenfessReply) return;
       }
       
-      // Auto Emoji
-      const handled = await autoEmoji.handle(sock, msg);
-      // Jika sudah ditangani oleh autoEmoji, jangan lanjut ke perintah lain
-      if (handled) return;
+      // Auto emoji
+      const isEmojiAuto = await autoEmoji.handle(sock, msg);
+      if (isEmojiAuto) return;
 
       // Autoresponder logic
       const triggers = autoresponderCmd.getTriggers(msg.key.remoteJid);
