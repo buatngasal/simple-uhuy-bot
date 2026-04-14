@@ -47,20 +47,20 @@ module.exports = {
         timeout: 60000
       });
 
-      // 5. Kirim sebagai Voice Note (PTT) dengan AdReply
+      // 5. Kirim sebagai Document MP3
       await sock.sendMessage(
         msg.key.remoteJid,
         {
-          audio: Buffer.from(audioRes.data),
-          mimetype: 'audio/mp4',
-          ptt: true,             
+          document: Buffer.from(audioRes.data),
+          mimetype: 'audio/mpeg',
+          fileName: `${res.title || 'audio'}.mp3`,
           contextInfo: {
             externalAdReply: {
               title: res.title || 'YouTube Video',
               body: 'Audio Downloaded via Uhuy-Bot',
               thumbnailUrl: res.thumbnail || res.image,
               sourceUrl: url,
-              mediaType: 2,
+              mediaType: 1,
               showAdAttribution: true,
               renderLargerThumbnail: true
             }
