@@ -109,4 +109,4 @@ module.exports = {
   },
 };
 
-// [fix] image search
+// [fix] image downloader by keywords
