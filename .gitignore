@@ -43,11 +43,13 @@ schedules.json
 points.json
 autoresponder.json
 menfess.json
+afk.json
 # Provide example if needed
 schedules.example.json
 points.example.json
 autoresponder.example.json
 menfess.example.json
+afk.example.json
 
 # Misc
 web-server.js

@@ -14,6 +14,7 @@ const performanceMonitor = require('./src/lib/performance-monitor');
 const connectionHealth = require('./src/lib/connection-health');
 const menfessCmd = require('./src/commands/main/menfess');
 const autoEmoji = require('./src/lib/auto-emoji');
+const { afkHandler } = require('./src/lib/afk-handler');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 
@@ -278,6 +279,10 @@ async function startBot() {
       // Auto emoji
       const isEmojiAuto = await autoEmoji.handle(sock, msg);
       if (isEmojiAuto) return;
+
+      // Afk handler
+      const isAfk = await afkHandler(sock, msg);
+      if (isAfk) return;
 
       // Autoresponder logic
       const triggers = autoresponderCmd.getTriggers(msg.key.remoteJid);

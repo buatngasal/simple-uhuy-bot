@@ -51,9 +51,24 @@ module.exports = {
       const fullText = args.join(' ');
       let [topText, bottomText] = fullText.split('|').map(t => t ? t.trim().toUpperCase() : '');
       
-      // Bungkus teks jika terlalu panjang (max 15-20 karakter per baris)
-      if (topText) topText = wrapText(topText, 18).replace(/'/g, "'\\\\\\''");
-      if (bottomText) bottomText = wrapText(bottomText, 18).replace(/'/g, "'\\\\\\''");
+      // Fungsi internal untuk escape karakter khusus FFmpeg
+      const ffmpegEscape = (text) => {
+        return text
+          .replace(/\\/g, '\\\\\\\\') // Escape backslash
+          .replace(/'/g, "'\\\\\\''")  // Escape single quote
+          .replace(/:/g, '\\:')       // Escape colon
+          .replace(/%/g, '%%');       // Escape percent sign (untuk teks)
+      };
+
+      // Bungkus teks dan aplikasikan escape
+      if (topText) {
+        topText = wrapText(topText, 18);
+        topText = ffmpegEscape(topText);
+      }
+      if (bottomText) {
+        bottomText = wrapText(bottomText, 18);
+        bottomText = ffmpegEscape(bottomText);
+      }
 
       // 3. DOWNLOAD MEDIA
       const isVideo = !!quoted.videoMessage;
@@ -70,12 +85,12 @@ module.exports = {
       fs.writeFileSync(tempInput, mediaBuffer);
 
       // 4. FILTER FFMPEG
-      // Gunakan :line_spacing untuk mengatur jarak antar baris jika teks di-wrap
       const baseFilters = [
         'scale=512:512:force_original_aspect_ratio=decrease',
         'pad=512:512:(ow-iw)/2:(oh-ih)/2:color=white@0'
       ];
 
+      // PENTING: Gunakan tanda kutip tunggal di sekitar text='${topText}'
       if (topText) {
         baseFilters.push(`drawtext=fontfile='${escapedFontPath}':text='${topText}':fontsize=45:fontcolor=white:borderw=3:bordercolor=black:line_spacing=5:x=(w-text_w)/2:y=25`);
       }
@@ -116,4 +131,4 @@ module.exports = {
   }
 };
 
-// [fix] sticker meme
+// [fix] sticker meme: support colon escaping
