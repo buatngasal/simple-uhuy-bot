@@ -129,4 +129,4 @@ module.exports = {
     }
 };
 
-// [fix] brat animated sticker (emoji support)
+// [fix] brat animated sticker (emoji support) ✓

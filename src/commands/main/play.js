@@ -1,118 +1,91 @@
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const axios = require('axios');
-const { Search, Downloader } = require('abot-scraper');
+const { Downloader } = require('abot-scraper');
 const { formatError, formatLoading } = require('../../lib/response-helper');
-const { commandPrefix } = require('../../../config');
 
-const search = new Search();
+// Regex untuk validasi link YouTube
+const ytRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
+
+puppeteer.use(StealthPlugin());
 const downloader = new Downloader();
 
 module.exports = {
   name: 'play',
-  description: 'Cari dan download audio YouTube berdasarkan kata kunci atau URL',
-  usage: `${commandPrefix}play <judul lagu/URL youtube>`,
+  description: 'Download langsung audio YouTube via link atau kata kunci',
   async execute(sock, msg, args) {
     const query = args.join(' ');
+    if (!query) return sock.sendMessage(msg.key.remoteJid, { text: formatError('Input kosong', 'Masukkan judul lagu atau link YouTube!') });
 
-    // 1. Validasi Input
-    if (!query) {
-      return await sock.sendMessage(msg.key.remoteJid, {
-        text: formatError('Input kosong', `Contoh: ${commandPrefix}play Rewrite The Stars atau link YouTube`)
-      }, { quoted: msg });
-    }
+    let browser = null;
+    let videoData = { title: 'YouTube Audio', link: '', thumb: '' };
 
     try {
-      let videoUrl;
-      let videoTitle = 'Audio';
-      let videoThumb = '';
-      let videoAuthor = 'YouTube Audio';
+      await sock.sendMessage(msg.key.remoteJid, { text: formatLoading(`Memproses: *${query}*...`) }, { quoted: msg });
 
-      // Regex untuk mendeteksi URL YouTube
-      const isUrl = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/i.test(query);
-
-      if (isUrl) {
-        // Jika input adalah URL
-        videoUrl = query;
-        // Opsional: Anda bisa menambahkan logic ytSearch(videoUrl) di sini jika ingin mengambil metadata (judul/thumb)
-        const checkMeta = await search.ytSearch(videoUrl);
-        if (checkMeta.status === 200 && checkMeta.result.length > 0) {
-          const meta = checkMeta.result[0];
-          videoTitle = meta.title;
-          videoThumb = meta.thumbnail || meta.image;
-          videoAuthor = meta.author;
-        }
+      // CEK APAKAH INPUT ADALAH LINK
+      if (ytRegex.test(query)) {
+        videoData.link = query;
+        // Opsional: Jika ingin ambil judul/thumb dari link, bisa pakai scraping ringan atau API
+        // Di sini kita set link langsung untuk mempercepat proses
       } else {
-        // 2. Proses Pencarian jika input bukan URL
-        const searchResult = await search.ytSearch(query);
+        // PROSES SCRAPING JIKA INPUT ADALAH KATA KUNCI
+        browser = await puppeteer.launch({
+          headless: "new",
+          args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
+
+        const page = await browser.newPage();
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36');
         
-        if (searchResult.status !== 200 || !searchResult.result || searchResult.result.length === 0) {
-          return await sock.sendMessage(msg.key.remoteJid, {
-            text: formatError('Tidak ditemukan', `Hasil pencarian untuk "${query}" tidak ditemukan.`)
-          }, { quoted: msg });
-        }
+        const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}&sp=CAESAhgD`;
+        await page.goto(searchUrl, { waitUntil: 'networkidle2' });
 
-        const video = searchResult.result[0];
-        videoUrl = video.url;
-        videoTitle = video.title;
-        videoThumb = video.thumbnail || video.image;
-        videoAuthor = video.author;
+        const videoSelector = 'ytd-video-renderer';
+        await page.waitForSelector(videoSelector, { timeout: 15000 });
+
+        const scraped = await page.evaluate((sel) => {
+          const el = document.querySelector(sel);
+          if (!el) return null;
+          const titleEl = el.querySelector('#video-title');
+          const thumbEl = el.querySelector('img');
+          return {
+            title: titleEl ? titleEl.innerText.trim() : 'YouTube Audio',
+            link: titleEl ? 'https://youtube.com' + titleEl.getAttribute('href') : null,
+            thumb: thumbEl ? thumbEl.src : ''
+          };
+        }, videoSelector);
+
+        if (!scraped || !scraped.link) throw new Error('Video tidak ditemukan.');
+        videoData = scraped;
+        await browser.close();
       }
 
-      // 3. Tampilkan Loading
-      await sock.sendMessage(msg.key.remoteJid, {
-        text: formatLoading(`Sedang memproses: *${videoTitle}*...`)
-      }, { quoted: msg });
+      // PROSES DOWNLOAD
+      const dlResult = await downloader.ytMp3Downloader(videoData.link);
+      const audioUrl = dlResult.result?.downloadUrl || dlResult.downloadUrl || dlResult.url;
 
-      // 4. Proses Download
-      const dlResult = await downloader.ytMp3Downloader(videoUrl);
-      const audioUrl =
-        dlResult.result?.downloadUrl ||
-        dlResult.downloadUrl ||
-        dlResult.result?.url ||
-        dlResult.url;
-
-      if (!audioUrl) {
-        return await sock.sendMessage(msg.key.remoteJid, {
-          text: formatError('Gagal', 'Tidak dapat menemukan link download audio.')
-        }, { quoted: msg });
-      }
+      if (!audioUrl) throw new Error('Link download tidak tersedia.');
 
       const audioRes = await axios.get(audioUrl, {
         responseType: 'arraybuffer',
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-          'Accept': 'audio/mpeg'
-        },
-        maxRedirects: 5,
         timeout: 60000
       });
 
-      // 5. Validasi Ukuran File
-      if (audioRes.data.length < 10 * 1024) {
-        return await sock.sendMessage(msg.key.remoteJid, {
-          text: formatError('Gagal', 'File audio rusak atau terlalu kecil.')
-        }, { quoted: msg });
-      }
-
-      if (audioRes.data.length > 100 * 1024 * 1024) {
-        return await sock.sendMessage(msg.key.remoteJid, {
-          text: formatError('File terlalu besar', 'Ukuran audio melebihi batas 100MB.')
-        }, { quoted: msg });
-      }
-
-      // 6. Kirim Audio
+      // KIRIM AUDIO
       await sock.sendMessage(
         msg.key.remoteJid,
         {
           audio: Buffer.from(audioRes.data),
           mimetype: 'audio/mpeg',
-          fileName: `${videoTitle}.mp3`,
+          fileName: `${videoData.title}.mp3`,
           ptt: false,
           contextInfo: {
             externalAdReply: {
-              title: videoTitle,
-              body: videoAuthor,
-              thumbnailUrl: videoThumb,
-              sourceUrl: videoUrl,
+              title: videoData.title,
+              body: 'YouTube Scraper Result',
+              thumbnailUrl: videoData.thumb,
+              sourceUrl: videoData.link,
               mediaType: 2,
               showAdAttribution: true
             }
@@ -122,14 +95,11 @@ module.exports = {
       );
 
     } catch (e) {
-      console.error('play error:', e.message);
-      await sock.sendMessage(
-        msg.key.remoteJid,
-        { text: formatError('Download failed', e.message) },
-        { quoted: msg }
-      );
+      console.error('Play Error:', e);
+      if (browser) await browser.close();
+      await sock.sendMessage(msg.key.remoteJid, { text: formatError('Error', e.message) });
     }
   }
 };
 
-// [fix] play youtube ✓
+// [fix] youtube play: support download direct audio via URL & keywords ✓

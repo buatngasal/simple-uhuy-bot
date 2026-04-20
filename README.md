@@ -1,12 +1,12 @@
 # Uhuy-Bot WhatsApp 🤖
 
-A multi-purpose WhatsApp bot featuring media downloading, news updates, and group management tools.
+A multi-purpose WhatsApp bot featuring AI, media downloading, and group management tools.
 
 ---
 
 ## 🚀 Main Features
-- Download TikTok, YouTube, News
-- Tools: sticker maker, sticker to image
+- Download TikTok, YouTube, Image
+- Tools: ai, brat, menfess, sticker to image/video 
 - Group admin: add/kick members
 - Simple command menu: type `.menu` in WhatsApp
 
@@ -17,18 +17,18 @@ A multi-purpose WhatsApp bot featuring media downloading, news updates, and grou
 **Downloader:**
 ```
 .tt <url>          TikTok Video
-.yt <url>          YouTube Video
-.ytmp3 <url>       YouTube MP3
-.yts <query>       YouTube Search
-.play <query>      Search and download YouTube by keyword
+.yts <query/url>   YouTube Search
+.play <query/url>  YouTube Audio
+.image <query>     Image Search
 ```
 
 **Tools:**
 ```
-.s                 Sticker maker
-.toimg             Sticker to image
-.menfess           Send a message anonymously
+.ai                ChatGPT AI
 .brat              Brat sticker maker
+.menfess           Send anonymous message
+.toimg             Sticker to image
+.tovideo           Sticker to video
 ```
 
 **Group:**
@@ -39,30 +39,13 @@ A multi-purpose WhatsApp bot featuring media downloading, news updates, and grou
 .demote @member    Remove as admin
 ```
 
-**Admin Tools:**
-```
-.performance       View bot performance stats
-.listtriggers      List auto-reply triggers
-.addtrigger        Add auto-reply trigger
-```
-
 ---
-
-## 🔧 Performance Features
-
-This bot includes advanced performance optimizations:
-
-- **Caching System** - Reduces file I/O by 90%
-- **Connection Health Monitoring** - Auto-recovery with exponential backoff
-- **Lazy Command Loading** - Commands loaded only when needed
-- **Rate Limiting** - Prevents API abuse
-- **Message Queue** - Handles high-traffic scenarios
 
 ## ⚡️ Getting Started
 
 1. **Install dependencies:**
    ```bash
-   git clone https://github.com/buatngasal/simple-uhuy-bot.git
+   git clone https://github.com/buatngasal/simple-uhuy-bot
    cd simple-uhuy-bot
    npm install
    ```
@@ -72,7 +55,6 @@ This bot includes advanced performance optimizations:
    ```
 3. **Scan the WhatsApp QR code** on first run.
 
-- Max file size for video/audio: 100MB (WhatsApp limit)
 - See all features: type `.menu` in WhatsApp
 
 ---
@@ -88,7 +70,7 @@ This bot includes advanced performance optimizations:
 
 MIT License
 
-Copyright (c) 2024
+Copyright (c) 2026
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

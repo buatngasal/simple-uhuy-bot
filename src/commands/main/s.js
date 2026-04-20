@@ -3,106 +3,79 @@ const ffmpegPath = require('ffmpeg-static');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
-const { downloadMediaMessage } = require('@whiskeysockets/baileys');
+const { downloadContentFromMessage } = require('@whiskeysockets/baileys');
+const { Sticker, StickerTypes } = require('wa-sticker-formatter');
 const { commandPrefix } = require('../../../config');
+const { botName } = require('../../../config');
+const { ownerName } = require('../../../config');
 
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 module.exports = {
   name: 's',
-  description: 'Convert image, video, or image URL to sticker',
-  usage: `${commandPrefix}s (reply to image/video or send image URL)`,
+  description: 'Convert image, video, or sticker to sticker with custom watermark',
+  usage: `${commandPrefix}s packname|author`,
   async execute(sock, msg, args) {
     let tempInput = null;
     let tempOutput = null;
     
     try {
-      const quoted = msg.message.extendedTextMessage?.contextInfo?.quotedMessage;
-      let buffer, mediaType;
-      
+      const quoted = msg.message.extendedTextMessage?.contextInfo?.quotedMessage || msg.message.stickerMessage || msg.message.imageMessage || msg.message.videoMessage;
+      let buffer, mediaType, mime;
+
+      // Logika penentuan packname dan author (Watermark)
+      let text = args.join(" ");
+      let packname = text.split('|')[0] ? text.split('|')[0] : `${botName}`;
+      let author = text.split('|')[1] ? text.split('|')[1] : `${ownerName}`;
+
       if (quoted) {
-        if (quoted.imageMessage) {
-          mediaType = 'image';
-        } else if (quoted.videoMessage) {
-          mediaType = 'video';
+        // Deteksi tipe media dari quoted atau pesan langsung
+        const type = Object.keys(quoted)[0];
+        if (type === 'imageMessage') {
+            mediaType = 'image';
+            mime = 'image/jpeg';
+        } else if (type === 'videoMessage') {
+            if (quoted.videoMessage.seconds > 11) return sock.sendMessage(msg.key.remoteJid, { text: 'Maksimal durasi 10 detik!' }, { quoted: msg });
+            mediaType = 'video';
+            mime = 'video/mp4';
+        } else if (type === 'stickerMessage') {
+            mediaType = 'sticker';
+            mime = 'image/webp';
         } else {
-          return sock.sendMessage(msg.key.remoteJid, { text: 'Reply to an image or short video.' }, { quoted: msg });
+            return sock.sendMessage(msg.key.remoteJid, { text: 'Reply gambar/video/stiker!' }, { quoted: msg });
         }
         
-        const stream = await downloadMediaMessage(
-          { key: msg.key, message: quoted },
-          sock
-        );
-        const chunks = [];
-        for await (const chunk of stream) {
-          chunks.push(chunk);
-        }
-        buffer = Buffer.concat(chunks);
+        // Download media
+        const stream = await downloadContentFromMessage(quoted[type], mediaType === 'sticker' ? 'sticker' : mediaType);
+        let bufferArr = [];
+        for await (const chunk of stream) { bufferArr.push(chunk) }
+        buffer = Buffer.concat(bufferArr);
+
       } else if (args[0] && args[0].startsWith('http')) {
-        // Download image from URL
-        try {
-          const res = await axios.get(args[0], { 
-            responseType: 'arraybuffer',
-            timeout: 30000 // 30 second timeout
-          });
-          buffer = Buffer.from(res.data);
-          mediaType = 'image';
-        } catch (e) {
-          return sock.sendMessage(msg.key.remoteJid, { text: 'Gagal mengunduh gambar dari URL.' }, { quoted: msg });
-        }
+        const res = await axios.get(args[0], { responseType: 'arraybuffer' });
+        buffer = Buffer.from(res.data);
+        mediaType = 'image';
       } else {
-        return sock.sendMessage(msg.key.remoteJid, { text: `Reply to an image/video or send an image URL with ${commandPrefix}s` }, { quoted: msg });
+        return sock.sendMessage(msg.key.remoteJid, { text: `Kirim/reply gambar/video dengan caption ${commandPrefix}s pack|author` }, { quoted: msg });
       }
-      
-      const tempDir = path.join(__dirname, '../temp');
-      if (!fs.existsSync(tempDir)) {
-        fs.mkdirSync(tempDir, { recursive: true });
-      }
-      
-      tempInput = path.join(tempDir, `${Date.now()}.${mediaType === 'image' ? 'jpg' : 'mp4'}`);
-      tempOutput = path.join(tempDir, `${Date.now()}.webp`);
-      
-      fs.writeFileSync(tempInput, buffer);
-      
-      await new Promise((resolve, reject) => {
-        let command = ffmpeg(tempInput)
-          .outputOptions([
-            '-vcodec', 'libwebp',
-            '-vf', 'scale=512:512:force_original_aspect_ratio=decrease,fps=15',
-            '-lossless', '1',
-            '-compression_level', '6',
-            '-q:v', '50',
-            '-loop', '0',
-            '-preset', 'default',
-            '-an',
-            '-vsync', '0'
-          ])
-          .toFormat('webp')
-          .save(tempOutput)
-          .on('end', resolve)
-          .on('error', reject);
+
+      const sticker = new Sticker(buffer, {
+        pack: packname, 
+        author: author, 
+        type: StickerTypes.FULL, // bisa diganti CROPPED jika ingin kotak
+        categories: ['🤩', '🎉'],
+        id: '12345',
+        quality: 50,
       });
-      
-      const stickerBuffer = fs.readFileSync(tempOutput);
+
+      const stickerBuffer = await sticker.toBuffer();
       await sock.sendMessage(msg.key.remoteJid, { sticker: stickerBuffer }, { quoted: msg });
-      
+
     } catch (error) {
       console.error('Sticker command error:', error);
-      await sock.sendMessage(msg.key.remoteJid, { text: '❌ Error: Failed to create sticker.' }, { quoted: msg });
-    } finally {
-      // Clean up temporary files
-      try {
-        if (tempInput && fs.existsSync(tempInput)) {
-          fs.unlinkSync(tempInput);
-        }
-        if (tempOutput && fs.existsSync(tempOutput)) {
-          fs.unlinkSync(tempOutput);
-        }
-      } catch (cleanupError) {
-        console.error('Error cleaning up temporary files:', cleanupError.message);
-      }
+      await sock.sendMessage(msg.key.remoteJid, { text: '❌ Gagal membuat stiker.' }, { quoted: msg });
     }
   },
-}; 
+};
 
-// [fix] fitur sticker ✓
+// [fix] sticker: support watermark ✓

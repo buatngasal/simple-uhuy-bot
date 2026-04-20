@@ -26,4 +26,4 @@ module.exports = {
   },
 };
 
-// [fix] fitur afk
+// [fix] fitur afk ✓

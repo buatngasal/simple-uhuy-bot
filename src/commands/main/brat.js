@@ -121,4 +121,4 @@ module.exports = {
     }
 };
 
-// [fix] brat sticker (emoji support)
+// [fix] brat sticker (emoji support) ✓

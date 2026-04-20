@@ -14,4 +14,4 @@ module.exports = {
   },
 }; 
 
-// [fix] [ B R O A D C A S T ] ✓
+// [fix] broadcast text tag-all ✓

@@ -6,72 +6,54 @@ module.exports = {
   name: 'menu',
   description: 'Show available bot commands',
   async execute(sock, msg, args) {
-    // 1. Fungsi rekursif untuk mengambil semua command
-    const getFilesRecursively = (dir, fileList = []) => {
-      if (!fs.existsSync(dir)) return fileList;
+    // Fungsi untuk mengambil properti name dari module.exports secara rekursif
+    const getCommandsRecursively = (dir, commandList = []) => {
       const files = fs.readdirSync(dir);
+      
       files.forEach((file) => {
         const filePath = path.join(dir, file);
+        
         if (fs.statSync(filePath).isDirectory()) {
-          getFilesRecursively(filePath, fileList);
-        } else {
-          const name = path.parse(file).name;
-          fileList.push(`${commandPrefix}${name}`);
+          getCommandsRecursively(filePath, commandList);
+        } else if (file.endsWith('.js')) {
+          try {
+            // Import file secara dinamis
+            const command = require(filePath);
+            // Ambil name dari module.exports jika tersedia
+            if (command.name) {
+              commandList.push(`${commandPrefix}${command.name}`);
+            }
+          } catch (err) {
+            console.error(`Gagal memuat file ${file}:`, err);
+          }
         }
       });
-      return fileList;
+      return commandList;
     };
 
-    // 2. Tentukan path direktori commands dan path gambar thumbnail
-    const dirPath = path.join(__dirname, '..', '..', 'commands', 'main');
-    const imagePath = path.join(__dirname, '..', '..', '..', 'uploads', 'Uhuybot.jpg');
+    // Tentukan path ke direktori src/commands/main
+    const dirPath = path.join(__dirname, '..', '..', '..', 'src', 'commands', 'main');
     
-    let commandFiles = [];
+    let commandNames = [];
     try {
-      commandFiles = getFilesRecursively(dirPath);
+      commandNames = getCommandsRecursively(dirPath);
+      // Menghapus duplikat dan mengurutkan abjad
+      commandNames = [...new Set(commandNames)].sort();
     } catch (err) {
       console.error("Gagal membaca direktori:", err);
     }
 
-    const menuList = commandFiles.map(cmd => `• ${cmd}`).join('\n');
+    const menuList = commandNames.map(cmd => `${cmd}`).join('\n');
 
-    // 3. Susun teks menu
-    const menuText = `🦚 *Uhuy-Bot Menu*
+    const menu = `🦚 *Uhuy-Bot Menu*
 
-*All Menu* 🍃
+*All Menu* [ *${commandPrefix}* ] 🍃
 ${menuList}
 
 Ketik *${commandPrefix}help <command>* untuk detail.`;
 
-    try {
-      // 4. Baca gambar lokal sebagai Buffer
-      const thumbnail = fs.existsSync(imagePath) ? fs.readFileSync(imagePath) : null;
-
-      // 5. Kirim pesan teks dengan contextInfo externalAdReply
-      await sock.sendMessage(
-        msg.key.remoteJid, 
-        { 
-          text: menuText,
-          contextInfo: {
-            externalAdReply: {
-              title: "Uhuy-Bot Multi Device",
-              body: "A simple, lightweight bot for everyday use",
-              thumbnail: thumbnail,
-              sourceUrl: "https://github.com/buatngasal/simple-uhuy-bot",
-              mediaType: 1,
-              renderLargerThumbnail: true,
-              showAdAttribution: true
-            }
-          }
-        }, 
-        { quoted: msg }
-      );
-    } catch (e) {
-      console.error("Gagal mengirim menu dengan thumbnail:", e);
-      // Fallback jika terjadi error
-      await sock.sendMessage(msg.key.remoteJid, { text: menuText }, { quoted: msg });
-    }
+    await sock.sendMessage(msg.key.remoteJid, { text: menu }, { quoted: msg });
   },
 };
 
-// [fix] fitur menu dengan format dokumen ✓
+// [fix] menu: get menu list from module.exports.name ✓

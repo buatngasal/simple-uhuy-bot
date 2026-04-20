@@ -131,4 +131,4 @@ module.exports = {
   }
 };
 
-// [fix] sticker meme: support colon escaping
+// [fix] sticker meme: support colon escaping ✓

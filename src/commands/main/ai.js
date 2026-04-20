@@ -1,10 +1,7 @@
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-const Tesseract = require('tesseract.js');
-const path = require('path');
 const { commandPrefix } = require('../../../config');
 
-// Gunakan plugin stealth
 puppeteer.use(StealthPlugin());
 
 module.exports = {
@@ -12,11 +9,7 @@ module.exports = {
   description: 'Tanya AI via ChatGPT',
   usage: `${commandPrefix}ai <pertanyaan>`,
   async execute(sock, msg, args) {
-    if (!args.length) {
-      return sock.sendMessage(msg.key.remoteJid, { 
-        text: `Masukkan pertanyaan.\nContoh: ${commandPrefix}ai apa itu cinta?` 
-      }, { quoted: msg });
-    }
+    if (!args.length) return sock.sendMessage(msg.key.remoteJid, { text: `Contoh: ${commandPrefix}ai apa itu cinta?` }, { quoted: msg });
 
     // Menggabungkan argumen dan encode untuk URL
     const query = args.join(' ');
@@ -29,71 +22,55 @@ module.exports = {
     try {
       browser = await puppeteer.launch({
         headless: "new",
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-blink-features=AutomationControlled'
-        ]
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled']
       });
       
       const page = await browser.newPage();
       await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
 
-      // Set Viewport Desktop
-      await page.setViewport({ width: 3840, height: 2160 });
+      // Membuka URL
+      await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 60000 });
 
-      // Buka URL ChatGPT dengan query
-      await page.goto(targetUrl, { 
-        waitUntil: 'networkidle2', 
-        timeout: 90000
-      });
+      // TUNGGU SAMPAI JAWABAN MUNCUL DAN SELESAI MENGETIK
+      const selector = '[data-message-author-role="assistant"]';
+      await page.waitForSelector(selector, { timeout: 30000 });
 
-      // Tunggu render jawaban (ChatGPT butuh waktu mengetik)
-      // Kita beri jeda 10-15 detik agar jawaban selesai muncul
-      await new Promise(resolve => setTimeout(resolve, 15000)); 
+      // Fungsi cerdas: Tunggu sampai teks berhenti berubah (indikasi selesai mengetik)
+      const aiResponse = await page.evaluate(async (sel) => {
+        const getLatest = () => {
+            const nodes = document.querySelectorAll(sel);
+            return nodes.length > 0 ? nodes[nodes.length - 1].innerText : null;
+        };
 
-      // Ambil screenshot area jawaban saja (Clip disesuaikan dengan layout umum)
-      const imageBuffer = await page.screenshot({ 
-        type: 'png',
-        clip: {
-          x: 1470,      // Menghindari sidebar kiri
-          y: 100,       // Menghindari header
-          width: 1200,  // Lebar konten tengah
-          height: 1750  // Tinggi area teks
+        let lastText = "";
+        let currentText = getLatest();
+        
+        // Loop kecil untuk memastikan teks sudah berhenti "animasi mengetik"
+        for (let i = 0; i < 10; i++) { 
+            if (currentText && currentText === lastText && currentText.length > 5) break;
+            lastText = currentText;
+            await new Promise(r => setTimeout(r, 2000)); // Cek setiap 2 detik
+            currentText = getLatest();
         }
-      });
+        return currentText;
+      }, selector);
 
       await browser.close();
 
-      // --- PROSES OCR (Ubah Gambar ke Teks) ---
-      const { data: { text } } = await Tesseract.recognize(
-        imageBuffer,
-        'ind+eng',
-        { 
-          cachePath: path.join(__dirname, '../temp'), // Simpan data bahasa di folder temp
-          logger: m => console.log(`[OCR Status] ${m.status}: ${Math.round(m.progress * 100)}%`)
-        }
-      );
-
-      if (!text || text.trim().length < 5) {
-        return sock.sendMessage(msg.key.remoteJid, { 
-          text: '❌ Gagal membaca jawaban. Coba ulangi beberapa saat lagi.' 
-        }, { quoted: msg });
+      if (!aiResponse || aiResponse.length < 5) {
+        throw new Error('Response too short or empty');
       }
 
-      // Kirim hasil akhir berupa teks
-      await sock.sendMessage(msg.key.remoteJid, { 
-        text: `${text.trim()}` 
-      }, { quoted: msg });
+      await sock.sendMessage(msg.key.remoteJid, { text: aiResponse.trim() }, { quoted: msg });
 
     } catch (error) {
-      console.error('AI Error:', error);
       if (browser) await browser.close();
+      console.error("AI Error:", error.message);
       await sock.sendMessage(msg.key.remoteJid, { 
-        text: '❌ Terjadi kesalahan teknis atau akses diblokir oleh sistem AI.' 
+        text: '❌ Gagal mendapatkan jawaban. ChatGPT mungkin mendeteksi bot atau koneksi lambat. Silakan coba lagi.' 
       }, { quoted: msg });
     }
   },
 };
 
-// [fix] fitur ai dari chat-gpt
+// [fix] fitur ai dari chat-gpt ✓

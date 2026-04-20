@@ -56,4 +56,4 @@ module.exports = {
   },
 };
 
-// [fix] fitur OCR untuk membaca teks pada gambar
+// [fix] fitur OCR untuk membaca teks pada gambar ✓

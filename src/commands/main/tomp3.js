@@ -50,7 +50,7 @@ module.exports = {
 
     // --- BAGIAN GENERATE NAMA FILE ---
     const now = new Date();
-    const dateStr = now.toISOString().slice(0, 10).replace(/-/g, ''); // Hasil: 20240520
+    const dateStr = now.toISOString().slice(0, 10).replace(/-/g, ''); // Hasil: 20260420
     const randomSuffix = Math.floor(Math.random() * 9000) + 1000; // Hasil: 4 angka acak (WA1000 - WA9999)
     const fileName = `AUD-${dateStr}-WA${randomSuffix}.mp3`;
     // ---------------------------------

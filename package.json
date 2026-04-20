@@ -1,7 +1,7 @@
 {
   "name": "uhuy-bot",
   "version": "1.0.0",
-  "description": "WhatsApp Bot inspired by Ong-Bak, powered by Baileys.",
+  "description": "Uhuy-Bot: Lightweight WhatsApp bot built with Baileys.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -19,7 +19,7 @@
     "@google/generative-ai": "^0.24.1",
     "@whiskeysockets/baileys": "^6.7.18",
     "abot-scraper": "1.6.2",
-    "axios": "^1.8.4",
+    "axios": "^1.15.0",
     "chalk": "^4.1.2",
     "chokidar": "^4.0.3",
     "cors": "^2.8.6",
