@@ -16,6 +16,7 @@ const menfessCmd = require('./src/commands/main/menfess');
 const autoEmoji = require('./src/lib/auto-emoji');
 const { afkHandler } = require('./src/lib/afk-handler');
 const { handleGroupUpdate } = require('./src/lib/group-update');
+const { autoLoginWifi } = require('./src/lib/reconnect');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 
@@ -213,6 +214,16 @@ async function startBot() {
 
       const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
       console.log(chalk.red('Connection closed. Reconnecting...'));
+
+      // Auto-login for Wi-Fi (e.g. wifi.id). Library source: "./src/lib/reconnect"
+      if (reason.includes('ECONNREFUSED') || reason.includes('ENOTFOUND') || reason.includes('timed out')) {
+        console.log(chalk.yellow('📡 Koneksi internet terputus. Mencoba memperbaiki via Reconnect...'));
+        try {
+          await autoLoginWifi("bud4m4n1s"); // Password must be in sync with index.js and "./src/lib/reconnect"
+        } catch (err) {
+          console.log(chalk.red('⚠️ Gagal auto-login WiFi, tapi tetap mencoba reconnect WhatsApp...'));
+        }
+      }
 
       // Clear intervals before reconnecting
       clearBackgroundIntervals();
