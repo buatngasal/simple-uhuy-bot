@@ -12,6 +12,7 @@ module.exports = {
     autoresponder: 'autoresponder.json',
     menfess: 'menfess.json',
     afk: 'afk.json',
+    welcome: 'welcome.json',
   },
 
   // Background polling intervals (in milliseconds)

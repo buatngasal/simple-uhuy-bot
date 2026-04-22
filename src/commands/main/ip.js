@@ -7,14 +7,14 @@ puppeteer.use(StealthPlugin());
 
 module.exports = {
   name: 'ip',
-  description: 'Menampilkan detail lokasi berdasarkan website WhatIsMyIPAddress',
+  description: 'Menampilkan detail lokasi IP',
   async execute(sock, msg, args) {
     const url = 'https://whatismyipaddress.com';
     let tempImgPath = null;
     let browser = null;
 
     try {
-      await sock.sendMessage(msg.key.remoteJid, { text: '⏳ Mengambil detail IP & Lokasi...' }, { quoted: msg });
+      await sock.sendMessage(msg.key.remoteJid, { text: '⏳ Sedang melacak lokasi IP...' }, { quoted: msg });
 
       browser = await puppeteer.launch({
         headless: "new",
@@ -71,7 +71,7 @@ module.exports = {
       await browser.close();
 
       // Susun Caption Final
-      const caption = `*🌐 DETAIL LOKASI IP 🌐*\n\n` +
+      const caption = `*🌐 IP LOCATION 🌐*\n\n` +
                       `◦ *IPv4* : ${data.ipv4}\n` +
                       `◦ *ISP* : ${data.isp}\n` +
                       `◦ *City* : ${data.city}\n` +

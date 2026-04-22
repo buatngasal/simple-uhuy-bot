@@ -1,76 +1,49 @@
+const sharp = require('sharp');
+const { downloadContentFromMessage } = require('@whiskeysockets/baileys');
+const { commandPrefix } = require('../../../config');
 const fs = require('fs');
 const path = require('path');
-const ffmpeg = require('fluent-ffmpeg');
-const ffmpegPath = require('ffmpeg-static');
-const { downloadMediaMessage } = require('@whiskeysockets/baileys');
-const { commandPrefix } = require('../../../config');
-
-ffmpeg.setFfmpegPath(ffmpegPath);
+const os = require('os');
 
 module.exports = {
   name: 'toimg',
-  description: 'Convert sticker to image (PNG or JPG)',
-  usage: `${commandPrefix}toimg (reply to sticker)`,
+  description: 'Mengubah stiker ke Gambar (JPG)',
+  usage: `${commandPrefix}toimg (balas stiker)`,
   async execute(sock, msg, args) {
-    const quoted = msg.message.extendedTextMessage?.contextInfo?.quotedMessage;
-    if (!quoted || !quoted.stickerMessage) {
-      return sock.sendMessage(msg.key.remoteJid, { text: `Reply to a sticker with ${commandPrefix}toimg` }, { quoted: msg });
-    }
-    const format = (args[0] && ['jpg', 'jpeg'].includes(args[0].toLowerCase())) ? 'jpg' : 'png';
-    const tempDir = path.join(__dirname, '../temp');
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir, { recursive: true });
-    }
-    const stream = await downloadMediaMessage(
-      { key: msg.key, message: quoted },
-      sock
-    );
-    const chunks = [];
-    for await (const chunk of stream) {
-      chunks.push(chunk);
-    }
-    const buffer = Buffer.concat(chunks);
-    const tempInput = path.join(tempDir, `${Date.now()}.webp`);
-    let tempOutput = path.join(tempDir, `${Date.now()}.${format}`);
-    fs.writeFileSync(tempInput, buffer);
-    let success = true;
-    try {
-      await new Promise((resolve, reject) => {
-        ffmpeg(tempInput)
-          .outputOptions('-vcodec', 'png')
-          .save(tempOutput)
-          .on('end', resolve)
-          .on('error', reject);
-      });
-    } catch (e) {
-      console.log('ffmpeg error (main):', e);
-      if (format === 'jpg') {
-        // Fallback to PNG
-        tempOutput = tempOutput.replace(/\.jpg$/, '.png');
-        try {
-          await new Promise((resolve, reject) => {
-            ffmpeg(tempInput)
-              .toFormat('png')
-              .save(tempOutput)
-              .on('end', resolve)
-              .on('error', reject);
-          });
-          success = false;
-        } catch (err) {
-          console.log('ffmpeg error (fallback PNG):', err);
-          fs.unlinkSync(tempInput);
-          return sock.sendMessage(msg.key.remoteJid, { text: 'Failed to convert sticker to image.' }, { quoted: msg });
-        }
-      } else {
-        fs.unlinkSync(tempInput);
-        return sock.sendMessage(msg.key.remoteJid, { text: 'Failed to convert sticker to image.' }, { quoted: msg });
-      }
-    }
-    const imgBuffer = fs.readFileSync(tempOutput);
-    await sock.sendMessage(msg.key.remoteJid, { image: imgBuffer, caption: `${success ? '' : ' (JPG not supported, sent as PNG)'}` }, { quoted: msg });
-    fs.unlinkSync(tempInput);
-    fs.unlinkSync(tempOutput);
-  },
-}; 
+    const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
+    const stickerMsg = quoted?.stickerMessage || msg.message?.stickerMessage;
 
-// [fix] fitur sticker to image ✓
+    if (!stickerMsg) {
+      return await sock.sendMessage(msg.key.remoteJid, { text: 'Balas stiker yang ingin dijadikan gambar!' }, { quoted: msg });
+    }
+
+    const tempImg = path.join(os.tmpdir(), `img_${Date.now()}.jpg`);
+
+    try {
+      await sock.sendMessage(msg.key.remoteJid, { text: '⏳ Mengonversi ke Gambar...' }, { quoted: msg });
+
+      const stream = await downloadContentFromMessage(stickerMsg, 'sticker');
+      let buffer = Buffer.from([]);
+      for await (const chunk of stream) {
+        buffer = Buffer.concat([buffer, chunk]);
+      }
+
+      // Proses Sharp (mengambil frame pertama jika itu animasi)
+      await sharp(buffer)
+        .flatten({ background: { r: 255, g: 255, b: 255 } }) // Menghindari background hitam
+        .toFormat('jpeg')
+        .toFile(tempImg);
+
+      await sock.sendMessage(msg.key.remoteJid, {
+        image: fs.readFileSync(tempImg),
+        caption: '✅ Stiker berhasil diubah menjadi gambar!'
+      }, { quoted: msg });
+
+    } catch (e) {
+      console.error(e);
+      await sock.sendMessage(msg.key.remoteJid, { text: '❌ Gagal mengonversi ke gambar.' }, { quoted: msg });
+    } finally {
+      if (fs.existsSync(tempImg)) fs.unlinkSync(tempImg);
+    }
+  }
+};

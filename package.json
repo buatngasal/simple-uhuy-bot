@@ -33,7 +33,7 @@
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "qrcode-terminal": "^0.12.0",
     "rss-parser": "^3.13.0",
-    "sharp": "^0.32.6",
+    "sharp": "0.32.6",
     "skia-canvas": "^3.0.8",
     "tesseract.js": "^7.0.0",
     "wa-sticker-formatter": "^4.4.4",

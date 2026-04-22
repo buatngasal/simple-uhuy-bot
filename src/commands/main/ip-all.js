@@ -8,7 +8,7 @@ puppeteer.use(StealthPlugin());
 
 module.exports = {
   name: 'ip-all',
-  description: 'Menampilkan detail IP lengkap secara otomatis',
+  description: 'Menampilkan detail lokasi IP lengkap',
   async execute(sock, msg, args) {
     let tempImgPath = null;
     let browser = null;
@@ -74,7 +74,7 @@ module.exports = {
 
       // 5. Kirim Gambar + Dataset Teks
       const imageBuffer = fs.readFileSync(tempImgPath);
-      const caption = `*📍 IP LOCATION DETAILS*\n\n${textDataset}\n\n🔗 *Source* : ${targetUrl}`;
+      const caption = `*🌐 IP LOCATION DETAILS 🌐*\n\n${textDataset}\n\n🔗 *Source* : ${targetUrl}`;
 
       await sock.sendMessage(
         msg.key.remoteJid,

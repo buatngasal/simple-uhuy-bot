@@ -15,6 +15,7 @@ const connectionHealth = require('./src/lib/connection-health');
 const menfessCmd = require('./src/commands/main/menfess');
 const autoEmoji = require('./src/lib/auto-emoji');
 const { afkHandler } = require('./src/lib/afk-handler');
+const { handleGroupUpdate } = require('./src/lib/group-update');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 
@@ -250,6 +251,11 @@ async function startBot() {
       connectionHealth.startMonitoring(sock);
       console.log(chalk.blue('Connection health monitoring started'));
     }
+  });
+  
+  // Welcome
+  sock.ev.on('group-participants.update', async (update) => {
+    await handleGroupUpdate(sock, update);
   });
 
   sock.ev.on('messages.upsert', async ({ messages }) => {

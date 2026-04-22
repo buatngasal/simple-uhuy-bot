@@ -16,6 +16,7 @@ class Database {
       autoresponder: 'autoresponder.json',
       menfess: 'menfess.json',
       afk: 'afk.json',
+      welcome: 'welcome.json',
     };
   }
 
@@ -219,7 +220,7 @@ class Database {
    * Preload frequently used databases
    */
   async preload() {
-    const frequentDbs = ['schedules', 'points', 'autoresponder', 'menfess', 'afk'];
+    const frequentDbs = ['schedules', 'points', 'autoresponder', 'menfess', 'afk', 'welcome'];
     const filePaths = frequentDbs.map(db => this.getFilePath(db));
     await cache.preload(filePaths);
   }
