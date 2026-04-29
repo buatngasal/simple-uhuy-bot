@@ -124,4 +124,4 @@ module.exports = {
   },
 };
 
-// [fix] fitur performance (cek penggunaan bot) ✓
+// [berhasil] fitur performance (cek penggunaan bot) ✓

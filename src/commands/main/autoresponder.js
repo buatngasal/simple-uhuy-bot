@@ -177,4 +177,4 @@ module.exports.listtriggers = {
   }
 }; 
 
-// [fix] fitur autoresponder trigger ✓
+// [berhasil] fitur autoresponder trigger ✓

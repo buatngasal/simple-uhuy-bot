@@ -10,4 +10,4 @@ module.exports = {
   }
 }; 
 
-// [fix] modul untuk kick member group ✓
+// [berhasil] modul untuk kick member group ✓

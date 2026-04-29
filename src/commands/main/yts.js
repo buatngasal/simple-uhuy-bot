@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const axios = require('axios');
 const { Downloader } = require('abot-scraper');
+const { commandPrefix } = require('../../../config');
 
 puppeteer.use(StealthPlugin());
 const downloader = new Downloader();
@@ -16,7 +17,7 @@ module.exports = {
     const remoteJid = msg.key.remoteJid;
     const query = args.join(' ');
 
-    if (!query) return sock.sendMessage(remoteJid, { text: 'Masukkan kata kunci atau link YouTube!' });
+    if (!query) return sock.sendMessage(remoteJid, { text: '⚠️ Masukkan kata kunci atau link YouTube!' }, { quoted: msg });
 
     // --- FITUR: DETEKSI LINK OTOMATIS ---
     const isUrl = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/i.test(query);
@@ -27,7 +28,7 @@ module.exports = {
         const dlResult = await downloader.ytMp3Downloader(query);
         const audioUrl = dlResult.result?.downloadUrl || dlResult.downloadUrl;
 
-        if (!audioUrl) throw new Error('Gagal mendapatkan link download.');
+        if (!audioUrl) throw new Error('❌ Gagal mendapatkan link download.');
 
         const audioRes = await axios.get(audioUrl, { responseType: 'arraybuffer' });
 
@@ -47,7 +48,7 @@ module.exports = {
         return; // Berhenti di sini jika sudah download via link
       } catch (err) {
         console.error(err);
-        return sock.sendMessage(remoteJid, { text: '❌ Gagal mengunduh audio dari link tersebut.' });
+        return sock.sendMessage(remoteJid, { text: '❌ Gagal mengunduh audio dari link tersebut.' }, { quoted: msg });
       }
     }
 
@@ -57,7 +58,7 @@ module.exports = {
       const index = parseInt(query) - 1;
 
       if (index < 0 || index >= sessionData.videos.length) {
-        return sock.sendMessage(remoteJid, { text: '❌ Nomor tidak valid.' });
+        return sock.sendMessage(remoteJid, { text: '❌ Nomor tidak valid.' }, { quoted: msg });
       }
 
       clearTimeout(sessionData.timeoutId);
@@ -88,7 +89,7 @@ module.exports = {
         return;
       } catch (err) {
         ytSessions.delete(remoteJid);
-        return sock.sendMessage(remoteJid, { text: '❌ Terjadi kesalahan saat download.' });
+        return sock.sendMessage(remoteJid, { text: '❌ Terjadi kesalahan saat download.' }, { quoted: msg });
       }
     }
 
@@ -123,14 +124,14 @@ module.exports = {
 
       if (ytSessions.has(remoteJid)) clearTimeout(ytSessions.get(remoteJid).timeoutId);
 
-      const timeoutId = setTimeout(() => {
-        if (ytSessions.has(remoteJid)) {
+      // 1. Logika Timeout yang baru
+      const timeoutId = setTimeout(async () => {
+        const session = ytSessions.get(remoteJid);
+        if (session && session.listMsg) {
           ytSessions.delete(remoteJid);
-          sock.sendMessage(remoteJid, { text: '⏰ Waktu pemilihan habis.' });
+          await sock.sendMessage(remoteJid, { text: '⏰ Waktu pemilihan habis.' }, { quoted: session.listMsg });
         }
       }, SESSION_TIMEOUT);
-
-      ytSessions.set(remoteJid, { videos, timeoutId });
 
       let caption = `*📺 HASIL PENCARIAN YOUTUBE*\n\n`;
       videos.forEach((v, i) => {
@@ -138,16 +139,20 @@ module.exports = {
         caption += `   └ ⏳ ${v.duration} | 👀 ${v.views}\n`;
         caption += `   └ 🔗 ${v.link}\n\n`;
       });
-      caption += `\n*Balas dengan nomor (1-10) untuk download MP3.*`;
+      caption += `\n*Balas pesan ini dengan ${commandPrefix}yts <nomor> untuk download MP3.*`;
 
-      await sock.sendMessage(remoteJid, { text: caption }, { quoted: msg });
+      // 2. Kirim pesan dan tangkap hasilnya
+      const sentMsg = await sock.sendMessage(remoteJid, { text: caption }, { quoted: msg });
+
+      // 3. Simpan sentMsg ke session
+      ytSessions.set(remoteJid, { videos, timeoutId, listMsg: sentMsg });
 
     } catch (e) {
-      await sock.sendMessage(remoteJid, { text: '❌ Gagal mencari video.' });
+      await sock.sendMessage(remoteJid, { text: '❌ Gagal mencari video.' }, { quoted: msg });
     } finally {
       if (browser) await browser.close();
     }
   }
 };
 
-// [fix] youTube search: support searching by keywords and URLs ✓
+// [berhasil] youTube search: mendukung pencarian kata kunci dan link URL ✓

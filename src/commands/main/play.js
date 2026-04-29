@@ -21,7 +21,7 @@ module.exports = {
     let videoData = { title: 'YouTube Audio', link: '', thumb: '' };
 
     try {
-      await sock.sendMessage(msg.key.remoteJid, { text: formatLoading(`Memproses: *${query}*...`) }, { quoted: msg });
+      await sock.sendMessage(msg.key.remoteJid, { text: formatLoading(`⌛ Sedang memproses: *${query}*...`) }, { quoted: msg });
 
       // CEK APAKAH INPUT ADALAH LINK
       if (ytRegex.test(query)) {
@@ -56,7 +56,7 @@ module.exports = {
           };
         }, videoSelector);
 
-        if (!scraped || !scraped.link) throw new Error('Video tidak ditemukan.');
+        if (!scraped || !scraped.link) throw new Error('❌ Video tidak ditemukan.');
         videoData = scraped;
         await browser.close();
       }
@@ -65,7 +65,7 @@ module.exports = {
       const dlResult = await downloader.ytMp3Downloader(videoData.link);
       const audioUrl = dlResult.result?.downloadUrl || dlResult.downloadUrl || dlResult.url;
 
-      if (!audioUrl) throw new Error('Link download tidak tersedia.');
+      if (!audioUrl) throw new Error('❌ Link download tidak tersedia.');
 
       const audioRes = await axios.get(audioUrl, {
         responseType: 'arraybuffer',
@@ -102,4 +102,4 @@ module.exports = {
   }
 };
 
-// [fix] youtube play: support download direct audio via URL & keywords ✓
+// [berhasil] youtube play: mendukung pengunduhan audio langsung melalui URL & kata kunci ✓

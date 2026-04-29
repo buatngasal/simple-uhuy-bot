@@ -12,16 +12,16 @@ function formatJid(input) {
 
 module.exports = {
   name: 'promote',
-  description: 'Promote a member to admin (admin only)',
+  description: 'Menaikkan anggota biasa menjadi admin grup (khusus admin)',
   usage: `${commandPrefix}promote @member`,
   async execute(sock, msg, args) {
     const jid = msg.key.remoteJid;
     const sender = msg.key.participant || msg.participant;
     if (!jid.endsWith('@g.us')) {
-      return sock.sendMessage(jid, { text: 'This command can only be used in groups.' }, { quoted: msg });
+      return sock.sendMessage(jid, { text: '⚠️ Hanya bisa digunakan di grup.' }, { quoted: msg });
     }
     if (!(await isAdmin(sock, jid, sender))) {
-      return sock.sendMessage(jid, { text: 'Only group admins can use this command.' }, { quoted: msg });
+      return sock.sendMessage(jid, { text: '⚠️ Perintah ini hanya tersedia bagi admin grup.' }, { quoted: msg });
     }
 
     // Support reply, mention, or phone number
@@ -34,16 +34,16 @@ module.exports = {
       target = formatJid(target);
     }
     if (!target) {
-      return sock.sendMessage(jid, { text: 'Tag, reply, or provide the phone number of the user you want to promote.' }, { quoted: msg });
+      return sock.sendMessage(jid, { text: `*Contoh* : ${commandPrefix}promote @member` }, { quoted: msg });
     }
     try {
       await sock.groupParticipantsUpdate(jid, [target], 'promote');
-      await sock.sendMessage(jid, { text: `Promoted @${target.split('@')[0]} to admin.`, mentions: [target] }, { quoted: msg });
+      await sock.sendMessage(jid, { text: `✅ @${target.split('@')[0]} sekarang adalah admin.`, mentions: [target] }, { quoted: msg });
     } catch (e) {
       console.error('Promote error:', e);
-      await sock.sendMessage(jid, { text: 'Failed to promote: ' + (e.message || e.toString()), mentions: [target] }, { quoted: msg });
+      await sock.sendMessage(jid, { text: '❌ Error promote: ' + (e.message || e.toString()), mentions: [target] }, { quoted: msg });
     }
   },
 }; 
 
-// [fix] fitur untuk admin-kan member ✓
+// [berhasil] fitur untuk admin-kan member ✓

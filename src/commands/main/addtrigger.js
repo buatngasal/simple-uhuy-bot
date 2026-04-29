@@ -156,4 +156,4 @@ module.exports = {
   }
 }; 
 
-// [fix] add trigger: menyimpan pesan sesuai perintah ✓
+// [berhasil] add trigger: menyimpan pesan sesuai perintah ✓

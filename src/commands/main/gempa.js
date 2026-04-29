@@ -18,16 +18,16 @@ module.exports = {
         }, { quoted: msg });
       }
 
-      const caption = `*⚠️ INFO GEMPA TERKINI ⚠️*
+      const caption = `*⚠️ INFO GEMPA TERKINI*
 
-📅 *Tanggal:* ${gempa.Tanggal}
-⌚ *Waktu:* ${gempa.Jam}
-📍 *Koordinat:* ${gempa.Coordinates}
-📏 *Magnitudo:* ${gempa.Magnitude} SR
-🌊 *Kedalaman:* ${gempa.Kedalaman}
-🗺️ *Lokasi:* ${gempa.Wilayah}
-📢 *Potensi:* ${gempa.Potensi}
-🕒 *Dirasakan:* ${gempa.Dirasakan || '-'}
+📅 *Tanggal* : ${gempa.Tanggal}
+⌚ *Waktu* : ${gempa.Jam}
+📍 *Koordinat* : ${gempa.Coordinates}
+📏 *Magnitudo* : ${gempa.Magnitude} SR
+🌊 *Kedalaman* : ${gempa.Kedalaman}
+🗺️ *Lokasi* : ${gempa.Wilayah}
+📢 *Potensi* : ${gempa.Potensi}
+🕒 *Dirasakan* : ${gempa.Dirasakan || '-'}
 
 _Sumber: BMKG Indonesia_`;
 
@@ -46,11 +46,11 @@ _Sumber: BMKG Indonesia_`;
       console.error(e);
       await sock.sendMessage(
         msg.key.remoteJid,
-        { text: 'Error: Gagal mengambil data dari BMKG. ' + (e.message || '') },
+        { text: '❌ Error: Gagal mengambil data dari BMKG. ' + (e.message || '') },
         { quoted: msg }
       );
     }
   }
 };
 
-// [fix] fitur informasi gempa ✓
+// [berhasil] fitur informasi gempa ✓

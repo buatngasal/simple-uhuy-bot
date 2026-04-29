@@ -21,13 +21,13 @@ async function handleGroupUpdate(sock, update) {
     let rawText = '';
     let imageSource;
 
-    // Logika pengambilan gambar
+    // Image retrieval logic
     try {
       const ppUrl = await sock.profilePictureUrl(num, 'image');
-      imageSource = { url: ppUrl }; // Gunakan URL jika ada PP
+      imageSource = { url: ppUrl }; // Use URL if profile picture exists
     } catch {
-      // Jika gagal/privasi, gunakan file lokal
-      imageSource = fs.readFileSync(defaultPP); // Load file lokal sebagai Buffer
+      // Fallback to local file if failed or private
+      imageSource = fs.readFileSync(defaultPP); // Load local file as Buffer
     }
 
     if (action === 'add') {
@@ -42,7 +42,7 @@ async function handleGroupUpdate(sock, update) {
         .replace(/@group/g, groupName);
 
       await sock.sendMessage(id, { 
-        image: imageSource, // Bisa berupa {url: ...} atau Buffer file lokal
+        image: imageSource, // Can be either {url: ...} or local file Buffer
         caption: message, 
         mentions: [num] 
       });

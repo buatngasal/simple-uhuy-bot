@@ -1,8 +1,10 @@
+const { commandPrefix } = require('../../../config');
+
 module.exports = {
   name: 'broadcast',
-  description: 'Broadcast a message to all chats',
+  description: 'Siaran ke semua chat',
   async execute(sock, msg, args) {
-    if (!args.length) return sock.sendMessage(msg.key.remoteJid, { text: 'Please provide a message to broadcast.' }, { quoted: msg });
+    if (!args.length) return sock.sendMessage(msg.key.remoteJid, { text: `*Contoh* : ${commandPrefix}broadcast halo semua` }, { quoted: msg });
     const text = args.join(' ');
     const chats = await sock.groupFetchAllParticipating();
     for (const jid of Object.keys(chats)) {
@@ -10,8 +12,8 @@ module.exports = {
       const members = metadata.participants.map(p => p.id);
       await sock.sendMessage(jid, { text: `[Broadcast]\n${text}`, mentions: members });
     }
-    await sock.sendMessage(msg.key.remoteJid, { text: 'Broadcast sent.' }, { quoted: msg });
+    await sock.sendMessage(msg.key.remoteJid, { text: '✅ Pesan siaran telah berhasil dikirim.' }, { quoted: msg });
   },
 }; 
 
-// [fix] broadcast text tag-all ✓
+// [berhasil] broadcast text tag-all ✓

@@ -10,13 +10,13 @@ puppeteer.use(StealthPlugin());
 module.exports = {
   name: 'xnxx',
   description: 'Cari dan download video langsung dari XNXX',
-  usage: `${commandPrefix}xnxx <keywords>`,
+  usage: `${commandPrefix}xnxx <katakunci>`,
   async execute(sock, msg, args) {
     const remoteJid = msg.key.remoteJid;
     const input = args.join(' ');
     const tempDir = path.join(__dirname, '../temp');
     
-    if (!input) return sock.sendMessage(remoteJid, { text: `Contoh: ${commandPrefix}xnxx japanese` });
+    if (!input) return sock.sendMessage(remoteJid, { text: `*Contoh* : ${commandPrefix}xnxx japanese` });
     if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
 
     let browser;
@@ -69,7 +69,7 @@ module.exports = {
         };
       });
 
-      if (!videoData.src) throw new Error("Gagal mendapatkan link sumber video.");
+      if (!videoData.src) throw new Error("❌ Gagal mendapatkan link sumber video.");
 
       await sock.sendMessage(remoteJid, { text: `⏳ Mengunduh: *${videoData.title}*...` });
 
@@ -125,4 +125,4 @@ module.exports = {
   }
 };
 
-// [fix] XNXX video downloader via keywords
+// [berhasil] download video dari XNXX dengan kata kunci ✓

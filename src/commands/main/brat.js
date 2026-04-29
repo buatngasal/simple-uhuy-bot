@@ -24,14 +24,14 @@ if (fs.existsSync(appleEmojiPath)) {
 
 module.exports = {
     name: 'brat',
-    description: 'Brat meme sticker',
+    description: 'Buat stiker meme Brat',
     usage: `${commandPrefix}brat <teks>`,
     async execute(sock, msg, args) {
         let tempOutput = null;
 
         try {
             let text = args.join(' ');
-            if (!text) return sock.sendMessage(msg.key.remoteJid, { text: `*Contoh:* ${commandPrefix}brat kamu imut 😭💖` }, { quoted: msg });
+            if (!text) return sock.sendMessage(msg.key.remoteJid, { text: `*Contoh* : ${commandPrefix}brat kamu imut 😭💖` }, { quoted: msg });
 
             const canvasSize = 512;
             const canvas = new Canvas(canvasSize, canvasSize);
@@ -121,4 +121,4 @@ module.exports = {
     }
 };
 
-// [fix] brat sticker (emoji support) ✓
+// [berhasil] sticker brat (bisa emoji) ✓

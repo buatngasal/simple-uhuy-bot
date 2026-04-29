@@ -1,7 +1,16 @@
 module.exports = {
   botName: 'Uhuy-Bot',
   ownerName: 'Uhuy',
-  ownerNumber: '6285935342970', // Change to your number
+  ownerNumber: [ // Owner phone numbers
+    '6285935342970', // index 0
+    '6283135935659', // index 1
+    '6285857840057', // index 2
+  ],
+  devNumber: [ // Dev IDs: use /1+1 command, check console output, and map to ownerNumber order
+    '122922568048708', // index 0
+    '123901938000102', // index 1
+    '106163622387764', // index 2
+  ], 
   commandPrefix: '.',
   sessionName: 'session',
 

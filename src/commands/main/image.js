@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const fs = require('fs');
 const path = require('path');
-const axios = require('axios'); // Tambahkan axios untuk download gambar langsung
+const axios = require('axios');
 const { commandPrefix } = require('../../../config');
 
 puppeteer.use(StealthPlugin());
@@ -16,7 +16,7 @@ module.exports = {
 
     if (!args[0]) {
       return sock.sendMessage(msg.key.remoteJid, { 
-        text: `Silakan masukkan kata kunci gambar.\nContoh: ${commandPrefix}image burung beo` 
+        text: `*Contoh* : ${commandPrefix}image burung beo` 
       }, { quoted: msg });
     }
 
@@ -86,7 +86,7 @@ module.exports = {
           await hdElement.screenshot({ path: tempOutput });
         }
       } else {
-        throw new Error('Gambar tidak ditemukan');
+        throw new Error('❌ Gambar tidak ditemukan');
       }
 
       await browser.close();
@@ -94,13 +94,13 @@ module.exports = {
       const imageBuffer = fs.readFileSync(tempOutput);
       await sock.sendMessage(msg.key.remoteJid, { 
         image: imageBuffer, 
-        caption: `✅ Hasil untuk: *${args.join(' ')}*\nSource: Yandex Images` 
+        caption: `*✅ Y A N D E X ◦ I M A G E*` 
       }, { quoted: msg });
 
     } catch (error) {
       console.error('Image Error:', error);
       if (browser) await browser.close();
-      await sock.sendMessage(msg.key.remoteJid, { text: '❌ Gagal mengambil gambar.' }, { quoted: msg });
+      await sock.sendMessage(msg.key.remoteJid, { text: '❌ Gagal mengambil gambar' }, { quoted: msg });
     } finally {
       if (tempOutput && fs.existsSync(tempOutput)) {
         try { fs.unlinkSync(tempOutput); } catch (e) {}
@@ -109,4 +109,4 @@ module.exports = {
   },
 };
 
-// [fix] image downloader by keywords ✓
+// [berhasil] image downloader by keywords ✓

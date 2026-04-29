@@ -47,14 +47,14 @@ module.exports = {
       }
 
       // Default: Jika hanya mengetik .ping
-      const simpleText = `Response Time : *${report.bot.avgResponseTime}*`;
+      const simpleText = `✅ Response Time : *${report.bot.avgResponseTime}*`;
       await sock.sendMessage(msg.key.remoteJid, { text: simpleText }, { quoted: msg });
 
     } catch (e) {
       console.error('Ping command error:', e);
-      await sock.sendMessage(msg.key.remoteJid, { text: '❌ Error saat menjalankan perintah.' }, { quoted: msg });
+      await sock.sendMessage(msg.key.remoteJid, { text: '❌ Gagal saat menjalankan perintah.' }, { quoted: msg });
     }
   }
 };
 
-// [fix] cek kecepatan respon dan performa bot ✓
+// [berhasil] cek kecepatan respon dan performa bot ✓

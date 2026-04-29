@@ -7,7 +7,7 @@ puppeteer.use(StealthPlugin());
 
 module.exports = {
   name: 'ss',
-  description: 'Screenshot Website Full Page HD (High Quality)',
+  description: 'Tangkapan layar penuh website dengan kualitas tinggi (HD).',
   usage: `${commandPrefix}ss <url>`,
   async execute(sock, msg, args) {
     // Pastikan args adalah string (mengambil elemen pertama jika args adalah array)
@@ -15,7 +15,7 @@ module.exports = {
 
     if (!url || !url.startsWith('http')) {
       return sock.sendMessage(msg.key.remoteJid, { 
-        text: `❌ Silakan masukkan URL yang valid.\nContoh: ${commandPrefix}ss https://google.com` 
+        text: `*Contoh* : ${commandPrefix}ss https://google.com` 
       }, { quoted: msg });
     }
 
@@ -67,7 +67,7 @@ module.exports = {
       // Kirim hasil screenshot
       await sock.sendMessage(msg.key.remoteJid, { 
         image: screenshotBuffer, 
-        caption: `✅ *Screenshot Berhasil*\n🌐 URL: ${url}` 
+        caption: `✅ *W E B ◦ S S*\n🌐 *URL* : ${url}` 
       }, { quoted: msg });
 
     } catch (error) {
@@ -104,4 +104,4 @@ async function autoScroll(page) {
   });
 }
 
-// [fix] full page website screenshot ✓
+// [berhasil] Tangkapan layar satu halaman penuh dengan kualitas HD ✓

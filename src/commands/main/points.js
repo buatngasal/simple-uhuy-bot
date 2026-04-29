@@ -108,9 +108,9 @@ module.exports = {
         
         if (!filteredTop.length) return sock.sendMessage(id, { text: 'Belum ada poin.' }, { quoted: msg });
         
-        let text = `*🏆 LEADERBOARD GRUP 🏆*\n\n`;
+        let text = `*🏆 LEADERBOARD GRUP*\n\n`;
         filteredTop.forEach(([user, point], i) => {
-          text += `${i + 1}. @${user.split('@')[0]} : *${point}* poin\n`;
+          text += `${i + 1}. @${user.split('@')[0]} : *${point}* 🪙\n`;
         });
         return sock.sendMessage(id, { text, mentions: filteredTop.map(([u]) => u) }, { quoted: msg });
       }
@@ -144,15 +144,15 @@ module.exports = {
 
       const point = getPoint(id, target);
       return sock.sendMessage(id, { 
-        text: `Points @${target.split('@')[0]} : *${point}*`, 
+        text: `🪙 Points @${target.split('@')[0]} : *${point}*`, 
         mentions: [target] 
       }, { quoted: msg });
 
     } catch (error) {
       console.error('Points command error:', error);
-      return sock.sendMessage(msg.key.remoteJid, { text: '❌ Error: Failed to process points command.' }, { quoted: msg });
+      return sock.sendMessage(msg.key.remoteJid, { text: '❌ Error: Gagal proses command points.' }, { quoted: msg });
     }
   }
 };
 
-// [fix] cek points + leaderboard + cleanup ✓
+// [berhasil] cek points + leaderboard + cleanup ✓

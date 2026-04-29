@@ -6,7 +6,7 @@ const { commandPrefix } = require('../../../config');
 module.exports = {
   name: 'ocr',
   description: 'Membaca teks dari gambar (OCR)',
-  usage: `${commandPrefix}ocr (reply ke gambar)`,
+  usage: `${commandPrefix}ocr <reply_gambar>`,
   async execute(sock, msg, args) {
     try {
       const quoted = msg.message.extendedTextMessage?.contextInfo?.quotedMessage;
@@ -23,12 +23,12 @@ module.exports = {
         buffer = await downloadMediaMessage(msg, 'buffer');
       } else {
         return sock.sendMessage(msg.key.remoteJid, { 
-          text: `Silakan reply gambar dengan perintah *${commandPrefix}ocr* untuk membaca teksnya.` 
+          text: `Silakan reply gambar dengan perintah: ${commandPrefix}ocr` 
         }, { quoted: msg });
       }
 
       // Memberi tahu pengguna bahwa proses sedang berjalan
-      await sock.sendMessage(msg.key.remoteJid, { text: '🔍 Sedang memproses gambar, tunggu sebentar...' }, { quoted: msg });
+      await sock.sendMessage(msg.key.remoteJid, { text: '🔍 Sedang memproses gambar...' }, { quoted: msg });
 
       // Proses OCR menggunakan Tesseract
       const { data: { text } } = await Tesseract.recognize(
@@ -56,4 +56,4 @@ module.exports = {
   },
 };
 
-// [fix] fitur OCR untuk membaca teks pada gambar ✓
+// [berhasil] fitur OCR untuk membaca teks pada gambar ✓

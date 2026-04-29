@@ -9,14 +9,14 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 
 module.exports = {
   name: 'tovn',
-  description: 'Mengubah audio/mp3 menjadi Voice Note',
-  usage: `${commandPrefix}tovn (balas audio/mp3)`,
+  description: 'Mengubah audio/mp3 menjadi voice_note.',
+  usage: `${commandPrefix}tovn <reply_audio/mp3>`,
   async execute(sock, msg, args) {
     const quoted = msg.message.extendedTextMessage?.contextInfo?.quotedMessage;
     
     // Validasi: pastikan membalas pesan audio/document
     if (!quoted || (!quoted.audioMessage && !quoted.documentMessage)) {
-      return sock.sendMessage(msg.key.remoteJid, { text: `Balas audio atau file MP3 dengan ${commandPrefix}tovn` }, { quoted: msg });
+      return sock.sendMessage(msg.key.remoteJid, { text: `⚠️ Balas audio atau file MP3 dengan perintah: ${commandPrefix}tovn` }, { quoted: msg });
     }
 
     const tempDir = path.join(__dirname, '../temp');
@@ -64,4 +64,4 @@ module.exports = {
   },
 };
 
-// [fix] mp3 audio to vn ✓
+// [berhasil] fitur ubah audio atau mp3 ke voice note ✓

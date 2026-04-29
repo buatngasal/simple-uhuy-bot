@@ -2,15 +2,15 @@ const { isAdmin } = require('./utils');
 
 module.exports = {
   name: 'kick',
-  description: 'Remove a member from the group (admin only)',
+  description: 'Mengeluarkan anggota dari grup (khusus admin)',
   async execute(sock, msg, args) {
     const jid = msg.key.remoteJid;
     const sender = msg.key.participant || msg.participant;
     if (!jid.endsWith('@g.us')) {
-      return sock.sendMessage(jid, { text: 'This command can only be used in groups.' }, { quoted: msg });
+      return sock.sendMessage(jid, { text: '⚠️ Hanya bisa digunakan di grup.' }, { quoted: msg });
     }
     if (!(await isAdmin(sock, jid, sender))) {
-      return sock.sendMessage(jid, { text: 'Only admins can use this command.' }, { quoted: msg });
+      return sock.sendMessage(jid, { text: '⚠️ Perintah ini hanya tersedia bagi admin grup.' }, { quoted: msg });
     }
     // Support both reply and mention
     let target = args[0];
@@ -20,15 +20,15 @@ module.exports = {
       target = msg.message.extendedTextMessage.contextInfo.participant;
     }
     if (!target) {
-      return sock.sendMessage(jid, { text: 'Tag or reply to the user you want to kick.' }, { quoted: msg });
+      return sock.sendMessage(jid, { text: `*Contoh* : ${commandPrefix}kick @member` }, { quoted: msg });
     }
     try {
       await sock.groupParticipantsUpdate(jid, [target], 'remove');
-      await sock.sendMessage(jid, { text: `Removed @${target.split('@')[0]}`, mentions: [target] }, { quoted: msg });
+      await sock.sendMessage(jid, { text: `✅ Anggota @${target.split('@')[0]} berhasil dikeluarkan dari grup.`, mentions: [target] }, { quoted: msg });
     } catch (error) {
-      await sock.sendMessage(jid, { text: 'An error occurred while removing the member from the group.' }, { quoted: msg });
+      await sock.sendMessage(jid, { text: '❌ Terjadi kesalahan saat mengeluarkan anggota.' }, { quoted: msg });
     }
   },
 };
 
-// [fix] fitur kick member ✓
+// [berhasil] fitur kick member ✓

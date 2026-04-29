@@ -5,7 +5,7 @@ A multi-purpose WhatsApp bot featuring AI, media downloading, and group manageme
 ---
 
 ## 🚀 Main Features
-- Download TikTok, YouTube, Image
+- Download TikTok, Instagram, Facebook, YouTube 
 - Tools: ai, brat, menfess, sticker to image/video 
 - Group admin: add/kick members
 - Simple command menu: type `.menu` in WhatsApp
@@ -17,14 +17,16 @@ A multi-purpose WhatsApp bot featuring AI, media downloading, and group manageme
 **Downloader:**
 ```
 .tt <url>          TikTok Video
+.ig <url>          Instagram Photo/Video
+.fb <url>          Facebook Video
 .yts <query/url>   YouTube Search
 .play <query/url>  YouTube Audio
-.image <query>     Image Search
 ```
 
 **Tools:**
 ```
 .ai                ChatGPT AI
+.hd                Image Enhancer
 .brat              Brat sticker maker
 .menfess           Send anonymous message
 .toimg             Sticker to image

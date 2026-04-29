@@ -4,7 +4,7 @@ const { commandPrefix } = require('../../../config');
 module.exports = {
   name: 'r',
   description: 'Mengirim kembali pesan yang di-reply (get quoted object)',
-  usage: `${commandPrefix}r (reply to any message)`,
+  usage: `${commandPrefix}r <reply_pesan>`,
   async execute(sock, msg, args) {
     try {
       const id = msg.key.remoteJid;
@@ -13,7 +13,7 @@ module.exports = {
       const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
       
       if (!quoted) {
-        return sock.sendMessage(id, { text: '❌ Silakan reply pesan yang ingin diambil!' }, { quoted: msg });
+        return sock.sendMessage(id, { text: '⚠️ Silakan reply pesan yang ingin diambil!' }, { quoted: msg });
       }
 
       // Mendapatkan tipe pesan yang di-reply (imageMessage, stickerMessage, dll)
@@ -46,4 +46,4 @@ module.exports = {
   }
 };
 
-// [fix] mengirim kembali pesan yang di-reply ✓
+// [berhasil] mengirim kembali pesan yang di-reply ✓

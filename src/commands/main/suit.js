@@ -9,7 +9,7 @@ module.exports = {
   async execute(sock, msg, args) {
     const user = args[0]?.toLowerCase();
     if (!choices.includes(user)) {
-      return sock.sendMessage(msg.key.remoteJid, { text: 'Pilih: batu, gunting, atau kertas.' }, { quoted: msg });
+      return sock.sendMessage(msg.key.remoteJid, { text: '⚠️ Pilih: batu, gunting, atau kertas.' }, { quoted: msg });
     }
     const bot = choices[Math.floor(Math.random() * 3)];
     let result = '';
@@ -27,4 +27,4 @@ module.exports = {
   },
 }; 
 
-// [fix] suit bersama bot ✓
+// [berhasil] suit bersama bot ✓

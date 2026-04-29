@@ -73,4 +73,4 @@ module.exports = {
   }
 }; 
 
-// [fix] list triggers ✓
+// [berhasil] list triggers ✓

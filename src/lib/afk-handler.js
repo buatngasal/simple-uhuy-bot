@@ -19,7 +19,7 @@ const afkHandler = async (sock, msg) => {
     const sender = msg.key.participant || msg.key.remoteJid;
     const remoteJid = msg.key.remoteJid;
 
-    // 1. Cek jika pengirim pesan adalah orang yang sedang AFK
+    // 1. Check if the sender is currently AFK
     if (db[sender]) {
       const { time } = db[sender];
       delete db[sender];
@@ -29,10 +29,10 @@ const afkHandler = async (sock, msg) => {
         text: `Selamat datang kembali! Kamu berhenti AFK.\nDurasi: *${formatDuration(time)}*`
       }, { quoted: msg });
       
-      return true; // Berhenti agar tidak lanjut ke command
+      return true; // Stop execution to prevent further commands
     }
 
-    // 2. Cek jika ada yang mention atau reply orang yang sedang AFK
+    // 2. Check if anyone mentions or replies to an AFK user
     const mentionedJids = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
     const quotedJid = msg.message?.extendedTextMessage?.contextInfo?.participant;
     const targetJids = [...new Set([...mentionedJids, ...(quotedJid ? [quotedJid] : [])])];

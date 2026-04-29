@@ -18,7 +18,7 @@ if (fs.existsSync(appleEmojiPath)) FontLibrary.use("AppleEmoji", appleEmojiPath)
 
 module.exports = {
     name: 'bratvideo',
-    description: 'Brat animated sticker',
+    description: 'Buat stiker animasi meme Brat',
     usage: `${commandPrefix}bratvideo <teks>`,
     async execute(sock, msg, args) {
         let tempFolder = null;
@@ -120,7 +120,7 @@ module.exports = {
 
         } catch (error) {
             console.error("Brat Anim Error:", error);
-            await sock.sendMessage(msg.key.remoteJid, { text: '❌ Gagal memproses animasi.' }, { quoted: msg });
+            await sock.sendMessage(msg.key.remoteJid, { text: '❌ Gagal memproses stiker.' }, { quoted: msg });
         } finally {
             // 4. Cleanup yang lebih aman di blok finally
             if (outputWebp && fs.existsSync(outputWebp)) fs.unlinkSync(outputWebp);
@@ -129,4 +129,4 @@ module.exports = {
     }
 };
 
-// [fix] brat animated sticker (emoji support) ✓
+// [berhasil] sticker bergerak brat (bisa emoji) ✓

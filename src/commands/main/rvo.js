@@ -4,11 +4,11 @@ const { commandPrefix } = require('../../../config');
 module.exports = {
   name: 'rvo',
   description: 'Membaca pesan View Once',
-  usage: `${commandPrefix}rvo (reply pesan view once)`,
+  usage: `${commandPrefix}rvo <reply_viewonce>`,
   async execute(sock, msg, args) {
     // 1. Ambil pesan yang di-reply
     const quotedMsg = msg.message.extendedTextMessage?.contextInfo?.quotedMessage;
-    if (!quotedMsg) return sock.sendMessage(msg.key.remoteJid, { text: 'Balas pesan View Once!' }, { quoted: msg });
+    if (!quotedMsg) return sock.sendMessage(msg.key.remoteJid, { text: '⚠️ Balas pesan View Once!' }, { quoted: msg });
 
     try {
       /**
@@ -23,7 +23,7 @@ module.exports = {
       
       // Validasi apakah benar-benar media yang bisa didownload
       if (!type || !['imageMessage', 'videoMessage', 'audioMessage'].includes(type)) {
-        return sock.sendMessage(msg.key.remoteJid, { text: 'Bukan pesan media sekali lihat yang valid.' }, { quoted: msg });
+        return sock.sendMessage(msg.key.remoteJid, { text: '⚠️ Bukan pesan media sekali lihat yang valid.' }, { quoted: msg });
       }
 
       // 3. Download Media
@@ -39,7 +39,7 @@ module.exports = {
       );
 
       const mediaData = content[type];
-      const caption = mediaData.caption || 'Terbongkar via RVO';
+      const caption = mediaData.caption || '✅ Terbongkar via RVO';
 
       // 4. Kirim ulang sesuai jenis media
       if (type === 'imageMessage') {
@@ -53,9 +53,9 @@ module.exports = {
     } catch (e) {
       console.error('RVO Final Error:', e);
       // Jika masih error, besar kemungkinan media sudah expired di server WA
-      sock.sendMessage(msg.key.remoteJid, { text: 'Gagal: Media mungkin sudah dilihat atau expired.' }, { quoted: msg });
+      sock.sendMessage(msg.key.remoteJid, { text: '❌ Gagal: Media mungkin sudah dilihat atau expired.' }, { quoted: msg });
     }
   },
 };
 
-// [fix] read view once ✓
+// [berhasil] read view once ✓

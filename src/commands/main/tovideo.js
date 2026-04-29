@@ -9,13 +9,13 @@ const os = require('os');
 module.exports = {
   name: 'tovideo',
   description: 'Mengubah stiker animasi ke MP4',
-  usage: `${commandPrefix}tovideo (balas stiker animasi)`,
+  usage: `${commandPrefix}tovideo <reply_stiker_bergerak>`,
   async execute(sock, msg, args) {
     const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
     const stickerMsg = quoted?.stickerMessage || msg.message?.stickerMessage;
 
     if (!stickerMsg) {
-      return await sock.sendMessage(msg.key.remoteJid, { text: 'Balas stiker animasi!' }, { quoted: msg });
+      return await sock.sendMessage(msg.key.remoteJid, { text: '⚠️ Balas stiker bergerak yang ingin dijadikan video!' }, { quoted: msg });
     }
 
     const uniqueId = Date.now();
@@ -32,10 +32,10 @@ module.exports = {
       // Cek apakah benar-benar animasi
       const metadata = await sharp(buffer).metadata();
       if (!metadata.pages || metadata.pages <= 1) {
-        return await sock.sendMessage(msg.key.remoteJid, { text: `Ini bukan stiker animasi. Gunakan *${commandPrefix}toimg* untuk stiker diam.` }, { quoted: msg });
+        return await sock.sendMessage(msg.key.remoteJid, { text: `⚠️ Ini bukan stiker bergerak. Gunakan *${commandPrefix}toimg* untuk stiker diam.` }, { quoted: msg });
       }
 
-      await sock.sendMessage(msg.key.remoteJid, { text: '⏳ Mengonversi ke Video...' }, { quoted: msg });
+      await sock.sendMessage(msg.key.remoteJid, { text: '⏳ Mengonversi ke video...' }, { quoted: msg });
 
       // Proses Sharp ke GIF
       const gifBuffer = await sharp(buffer, { animated: true }).toFormat('gif').toBuffer();
@@ -54,7 +54,7 @@ module.exports = {
       await sock.sendMessage(msg.key.remoteJid, {
         video: fs.readFileSync(tempMp4),
         mimetype: 'video/mp4',
-        caption: '✅ Stiker animasi berhasil diubah!'
+        caption: '✅ Stiker berhasil diubah menjadi video!'
       }, { quoted: msg });
 
     } catch (e) {
@@ -66,3 +66,5 @@ module.exports = {
     }
   }
 };
+
+// [berhasil] fitur ubah stiker bergerak menjadi video ✓

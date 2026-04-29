@@ -16,7 +16,8 @@ const menfessCmd = require('./src/commands/main/menfess');
 const autoEmoji = require('./src/lib/auto-emoji');
 const { afkHandler } = require('./src/lib/afk-handler');
 const { handleGroupUpdate } = require('./src/lib/group-update');
-const { autoLoginWifi } = require('./src/lib/reconnect');
+const { autoLoginWifi } = require('./src/lib/wifi-connect');
+const { getMediaDebugInfo, logDebugStatus } = require('./src/lib/debug'); let globalDebugMode = false; 
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 
@@ -195,7 +196,18 @@ async function sendStickerFromUrl(sock, jid, url, quotedMsg) {
   }
 }
 
+// SET: WiFi SSID and Password
+const SSID_TARGET = "MURYA";
+const PASS_PORTAL = "bud4m4n1s";
+
 async function startBot() {
+  try {
+    console.log(chalk.blue('🚀 [System] Verifying initial connection...'));
+    await autoLoginWifi(SSID_TARGET, PASS_PORTAL);
+  } catch (e) {
+    console.log(chalk.red('⚠️ Network initialization failed, attempting to continue...'));
+  }
+
   const { state, saveCreds } = await useMultiFileAuthState(config.sessionName);
   const { version } = await fetchLatestBaileysVersion();
   const sock = makeWASocket({
@@ -211,23 +223,22 @@ async function startBot() {
     if (connection === 'close') {
       const reason = lastDisconnect?.error?.message || 'unknown';
       connectionHealth.connectionClosed(reason);
-
-      const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
-      console.log(chalk.red('Connection closed. Reconnecting...'));
-
-      // Auto-login for Wi-Fi (e.g. wifi.id). Library source: "./src/lib/reconnect"
-      if (reason.includes('ECONNREFUSED') || reason.includes('ENOTFOUND') || reason.includes('timed out')) {
-        console.log(chalk.yellow('📡 Koneksi internet terputus. Mencoba memperbaiki via Reconnect...'));
-        try {
-          await autoLoginWifi("bud4m4n1s"); // Password must be in sync with index.js and "./src/lib/reconnect"
-        } catch (err) {
-          console.log(chalk.red('⚠️ Gagal auto-login WiFi, tapi tetap mencoba reconnect WhatsApp...'));
-        }
-      }
-
+      
       // Clear intervals before reconnecting
       clearBackgroundIntervals();
       connectionHealth.stopMonitoring();
+
+      const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
+      console.log(chalk.red('Connection closed. Reconnecting...'));
+      
+      if (reason.includes('ECONNREFUSED') || reason.includes('ENOTFOUND') || reason.includes('timed out')) {
+        console.log(chalk.yellow('📡 Connection lost. Running WiFi auto-switch...'));
+        try {
+          await autoLoginWifi(SSID_TARGET, PASS_PORTAL);
+        } catch (err) {
+          console.log(chalk.red(`⚠️ ${err.message}`));
+        }
+      }
 
       if (shouldReconnect && connectionHealth.shouldReconnect()) {
         const delay = connectionHealth.getReconnectDelay();
@@ -282,15 +293,52 @@ async function startBot() {
       // Passive point for any message
       await addPoint(msg.key.remoteJid, msg.key.participant || msg.key.remoteJid, 1);
 
-      // Body
+      // Parsing Body, Args, Command
       const body = msg.message.conversation || msg.message.extendedTextMessage?.text || '';
+      const isCommand = body.startsWith(config.commandPrefix);
+      const args = isCommand ? body.slice(config.commandPrefix.length).trim().split(/ +/) : [];
+      const command = args.length > 0 ? args.shift().toLowerCase() : '';
+
+      // Debug mode
+      if (isCommand && command === 'debug') {
+        const sender = msg.key.participant || msg.key.remoteJid;
+        const isAuthorized = logDebugStatus(sender, config);
+        if (!isAuthorized) {
+          return await sock.sendMessage(msg.key.remoteJid, { text: '❌ Access Denied: Owner/Dev Only.' }, { quoted: msg });
+        }
+        const action = args[0]?.toLowerCase();
+        if (action === 'on') {
+          globalDebugMode = true;
+          return await sock.sendMessage(msg.key.remoteJid, { text: '✅ *Debug Mode:* ON' }, { quoted: msg });
+        } else if (action === 'off') {
+          globalDebugMode = false;
+          return await sock.sendMessage(msg.key.remoteJid, { text: '❌ *Debug Mode:* OFF' }, { quoted: msg });
+        } else {
+          return await sock.sendMessage(msg.key.remoteJid, { text: `*Usage* : ${config.commandPrefix}debug on/off` }, { quoted: msg });
+        }
+      }
+      if (globalDebugMode) {
+        const debugText = getMediaDebugInfo(msg);
+        if (debugText) {
+          await sock.sendMessage(msg.key.remoteJid, { text: debugText }, { quoted: msg });
+        }
+      }
+
+      // Eval Logic
+      if (body.startsWith('/')) {
+        const { runEval } = require('./src/lib/eval');
+        const code = body.slice(1).trim();
+        if (code) {
+          await runEval(sock, msg, code, config, args);
+          return;
+        }
+      }
 
       // Menfess
-      const isCommand = body.startsWith(config.commandPrefix);
       const isReply = !!msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
       if (!isCommand || isReply) {
-          const isMenfessReply = await menfessCmd.handleReply(sock, msg, body);
-          if (isMenfessReply) return;
+        const isMenfessReply = await menfessCmd.handleReply(sock, msg, body);
+        if (isMenfessReply) return;
       }
       
       // Auto emoji
@@ -359,9 +407,8 @@ async function startBot() {
         }
       }
 
-      if (!body.startsWith(config.commandPrefix)) return;
-      const args = body.slice(config.commandPrefix.length).trim().split(/ +/);
-      const command = args.shift().toLowerCase();
+      if (!isCommand) return;
+
       if (commandLoader.hasCommand(command)) {
         console.log('COMMAND TRIGGERED:', command, args);
         const commandStartTime = Date.now();

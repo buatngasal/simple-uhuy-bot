@@ -16,7 +16,7 @@ if (fs.existsSync(appleEmojiPath)) {
 
 module.exports = {
     name: 'emoji',
-    description: 'Ubah 1 emoji menjadi stiker',
+    description: 'Ubah emoji menjadi stiker',
     usage: `${commandPrefix}emoji 😭`,
     async execute(sock, msg, args) {
         let tempOutput = null;
@@ -30,7 +30,7 @@ module.exports = {
             // Validasi: Harus tepat 1 emoji
             if (emojiArray.length !== 1 || !/\p{Emoji}/u.test(emojiArray[0])) {
                 return sock.sendMessage(msg.key.remoteJid, { 
-                    text: `❌ Masukkan tepat *1 emoji* saja.\nContoh: ${commandPrefix}emoji 😭` 
+                    text: `*Contoh* : ${commandPrefix}emoji 😭` 
                 }, { quoted: msg });
             }
 
@@ -89,4 +89,4 @@ module.exports = {
     }
 };
 
-// [fix] emoji to sticker ✓
+// [berhasil] emoji menjadi sticker ✓

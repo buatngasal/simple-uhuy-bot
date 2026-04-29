@@ -12,16 +12,16 @@ function formatJid(input) {
 
 module.exports = {
   name: 'demote',
-  description: 'Demote an admin to member (admin only)',
+  description: 'Menurunkan admin grup menjadi anggota biasa (khusus admin)',
   usage: `${commandPrefix}demote @member`,
   async execute(sock, msg, args) {
     const jid = msg.key.remoteJid;
     const sender = msg.key.participant || msg.participant;
     if (!jid.endsWith('@g.us')) {
-      return sock.sendMessage(jid, { text: 'This command can only be used in groups.' }, { quoted: msg });
+      return sock.sendMessage(jid, { text: '⚠️ Hanya bisa digunakan di grup.' }, { quoted: msg });
     }
     if (!(await isAdmin(sock, jid, sender))) {
-      return sock.sendMessage(jid, { text: 'Only group admins can use this command.' }, { quoted: msg });
+      return sock.sendMessage(jid, { text: '⚠️ Perintah ini hanya tersedia bagi admin grup.' }, { quoted: msg });
     }
 
     // Support reply, mention, or phone number
@@ -34,16 +34,16 @@ module.exports = {
       target = formatJid(target);
     }
     if (!target) {
-      return sock.sendMessage(jid, { text: 'Tag, reply, or provide the phone number of the user you want to demote.' }, { quoted: msg });
+      return sock.sendMessage(jid, { text: `*Contoh* : ${commandPrefix}demote @member` }, { quoted: msg });
     }
     try {
       await sock.groupParticipantsUpdate(jid, [target], 'demote');
-      await sock.sendMessage(jid, { text: `Demoted @${target.split('@')[0]} to member.`, mentions: [target] }, { quoted: msg });
+      await sock.sendMessage(jid, { text: `✅ @${target.split('@')[0]} sekarang bukan admin.`, mentions: [target] }, { quoted: msg });
     } catch (e) {
       console.error('Demote error:', e);
-      await sock.sendMessage(jid, { text: 'Failed to demote: ' + (e.message || e.toString()), mentions: [target] }, { quoted: msg });
+      await sock.sendMessage(jid, { text: '❌ Error demote: ' + (e.message || e.toString()), mentions: [target] }, { quoted: msg });
     }
   },
 }; 
 
-// [fix] fitur untuk un-admin-kan member ✓
+// [berhasil] fitur untuk un-admin-kan member ✓

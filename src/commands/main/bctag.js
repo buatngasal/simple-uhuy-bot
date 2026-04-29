@@ -1,8 +1,9 @@
 const { getContentType } = require('@whiskeysockets/baileys');
+const { commandPrefix } = require('../../../config');
 
 module.exports = {
   name: 'bctag',
-  description: 'Broadcast media/pesan ke semua grup dengan tag all',
+  description: 'Broadcast media/pesan ke semua grup dengan tag-all',
   async execute(sock, msg, args) {
     try {
       const id = msg.key.remoteJid;
@@ -11,7 +12,7 @@ module.exports = {
       const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
       
       if (!quoted) {
-        return sock.sendMessage(id, { text: '❌ Silakan reply pesan atau media yang ingin di-broadcast!' }, { quoted: msg });
+        return sock.sendMessage(id, { text: `⚠️ Reply pesan atau media menggunakan perintah: ${commandPrefix}bctag` }, { quoted: msg });
       }
 
       // Mendapatkan tipe pesan dan kontennya
@@ -49,7 +50,7 @@ module.exports = {
           await new Promise(resolve => setTimeout(resolve, 1000)); 
           
         } catch (err) {
-          console.error(`Gagal mengirim ke ${jid}:`, err);
+          console.error(`❌ Gagal mengirim ke ${jid}:`, err);
         }
       }
 
@@ -62,4 +63,4 @@ module.exports = {
   },
 };
 
-// [fix] broadcast reply tag-all ✓
+// [berhasil] broadcast reply tag-all ✓

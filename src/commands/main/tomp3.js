@@ -9,12 +9,12 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 
 module.exports = {
   name: 'tomp3',
-  description: 'Convert video or voice note to mp3 audio',
-  usage: `${commandPrefix}tomp3 (reply to video/voice note)`,
+  description: 'Mengubah video/voice_note menjadi audio_mp3.',
+  usage: `${commandPrefix}tomp3 <reply_video/voice_note>`,
   async execute(sock, msg, args) {
     const quoted = msg.message.extendedTextMessage?.contextInfo?.quotedMessage;
     if (!quoted || (!quoted.videoMessage && !quoted.audioMessage)) {
-      return sock.sendMessage(msg.key.remoteJid, { text: `Reply to a video or voice note with ${commandPrefix}tomp3` }, { quoted: msg });
+      return sock.sendMessage(msg.key.remoteJid, { text: `⚠️ Balas video atau voice note dengan perintah: ${commandPrefix}tomp3` }, { quoted: msg });
     }
 
     let mediaType = quoted.videoMessage ? 'video' : 'audio';
@@ -70,4 +70,4 @@ module.exports = {
   },
 };
 
-// [fix] vn audio to mp3 ✓
+// [berhasil] fitur ubah video atau voice note ke file mp3 ✓

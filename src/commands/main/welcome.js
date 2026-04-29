@@ -15,7 +15,7 @@ module.exports = {
   usage: `${commandPrefix}welcome on/off | set welcome <teks> | set left <teks>`,
   async execute(sock, msg, args) {
     const id = msg.key.remoteJid;
-    if (!id.endsWith('@g.us')) return sock.sendMessage(id, { text: 'Fitur ini hanya untuk grup!' });
+    if (!id.endsWith('@g.us')) return sock.sendMessage(id, { text: '⚠️ Fitur ini hanya untuk grup!' });
 
     const db = load();
     if (!db[id]) db[id] = { status: false, welcome: 'Selamat datang @user!', left: 'Selamat tinggal @user!' };
@@ -50,3 +50,5 @@ module.exports = {
     return sock.sendMessage(id, { text: `*Format Welcome:*\n- @user (Tag member)\n- @group (Nama grup)\n\n*Command:*\n${commandPrefix}welcome on/off\n${commandPrefix}welcome set welcome <teks>\n${commandPrefix}welcome set left <teks>` });
   }
 };
+
+// [berhasil] fitur otomatis mendeteksi dan memberikan pesan anggota yang masuk/keluar grup ✓

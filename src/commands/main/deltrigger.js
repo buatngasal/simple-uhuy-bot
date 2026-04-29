@@ -74,4 +74,4 @@ module.exports = {
   }
 }; 
 
-// [fix] delete trigger ✓
+// [berhasil] delete trigger ✓

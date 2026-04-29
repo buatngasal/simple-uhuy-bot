@@ -1,19 +1,21 @@
+const { commandPrefix } = require('../../../config');
+
 module.exports = {
   name: 'setdesc',
-  description: 'Set group description (if bot admin)',
+  description: 'Atur deskripsi grup (jika bot adalah admin)',
   async execute(sock, msg, args) {
     if (!msg.key.remoteJid.endsWith('@g.us')) {
-      return sock.sendMessage(msg.key.remoteJid, { text: 'This command can only be used in groups.' }, { quoted: msg });
+      return sock.sendMessage(msg.key.remoteJid, { text: '⚠️ Perintah ini hanya dapat digunakan di dalam grup.' }, { quoted: msg });
     }
-    if (!args.length) return sock.sendMessage(msg.key.remoteJid, { text: 'Please provide a new group description.' }, { quoted: msg });
+    if (!args.length) return sock.sendMessage(msg.key.remoteJid, { text: `*Contoh* : ${commandPrefix}setdesc grup ini milik saya` }, { quoted: msg });
     const desc = args.join(' ');
     try {
       await sock.groupUpdateDescription(msg.key.remoteJid, desc);
-      await sock.sendMessage(msg.key.remoteJid, { text: 'Group description updated.' }, { quoted: msg });
+      await sock.sendMessage(msg.key.remoteJid, { text: '✅ Deskripsi grup berhasil diperbarui.' }, { quoted: msg });
     } catch (e) {
-      await sock.sendMessage(msg.key.remoteJid, { text: 'Failed to update description: ' + e.message }, { quoted: msg });
+      await sock.sendMessage(msg.key.remoteJid, { text: '❌ Terjadi kesalahan saat memperbarui deskripsi grup: ' + e.message }, { quoted: msg });
     }
   },
 }; 
 
-// [fix] fitur set desc group ✓
+// [berhasil] fitur set desc group ✓

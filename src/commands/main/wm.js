@@ -13,7 +13,7 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 
 module.exports = {
   name: 'wm',
-  description: 'Convert image, video, or sticker to sticker with custom watermark',
+  description: 'Ubah media ke stiker + watermark khusus',
   usage: `${commandPrefix}wm packname|author`,
   async execute(sock, msg, args) {
     let tempInput = null;
@@ -35,14 +35,14 @@ module.exports = {
             mediaType = 'image';
             mime = 'image/jpeg';
         } else if (type === 'videoMessage') {
-            if (quoted.videoMessage.seconds > 11) return sock.sendMessage(msg.key.remoteJid, { text: 'Maksimal durasi 10 detik!' }, { quoted: msg });
+            if (quoted.videoMessage.seconds > 11) return sock.sendMessage(msg.key.remoteJid, { text: '⚠️ Maksimal durasi 10 detik!' }, { quoted: msg });
             mediaType = 'video';
             mime = 'video/mp4';
         } else if (type === 'stickerMessage') {
             mediaType = 'sticker';
             mime = 'image/webp';
         } else {
-            return sock.sendMessage(msg.key.remoteJid, { text: 'Reply gambar/video/stiker!' }, { quoted: msg });
+            return sock.sendMessage(msg.key.remoteJid, { text: '⚠️ Reply gambar/video/stiker!' }, { quoted: msg });
         }
         
         // Download media
@@ -56,7 +56,7 @@ module.exports = {
         buffer = Buffer.from(res.data);
         mediaType = 'image';
       } else {
-        return sock.sendMessage(msg.key.remoteJid, { text: `Kirim/reply gambar/video dengan caption ${commandPrefix}wm pack|author` }, { quoted: msg });
+        return sock.sendMessage(msg.key.remoteJid, { text: `⚠️ Kirim/reply gambar/video dengan caption ${commandPrefix}wm pack|author` }, { quoted: msg });
       }
 
       const sticker = new Sticker(buffer, {
@@ -78,4 +78,4 @@ module.exports = {
   },
 };
 
-// [fix] sticker watermark ✓
+// [berhasil] stiker + watermark kustom ✓

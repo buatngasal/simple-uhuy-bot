@@ -54,4 +54,4 @@ module.exports = {
   }
 };
 
-// [fix] fitur debug ✓
+// [berhasil] fitur debug ✓

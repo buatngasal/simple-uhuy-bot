@@ -8,19 +8,19 @@ const os = require('os');
 module.exports = {
   name: 'toimg',
   description: 'Mengubah stiker ke Gambar (JPG)',
-  usage: `${commandPrefix}toimg (balas stiker)`,
+  usage: `${commandPrefix}toimg <reply_stiker_diam>`,
   async execute(sock, msg, args) {
     const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
     const stickerMsg = quoted?.stickerMessage || msg.message?.stickerMessage;
 
     if (!stickerMsg) {
-      return await sock.sendMessage(msg.key.remoteJid, { text: 'Balas stiker yang ingin dijadikan gambar!' }, { quoted: msg });
+      return await sock.sendMessage(msg.key.remoteJid, { text: '⚠️ Balas stiker diam yang ingin dijadikan gambar!' }, { quoted: msg });
     }
 
     const tempImg = path.join(os.tmpdir(), `img_${Date.now()}.jpg`);
 
     try {
-      await sock.sendMessage(msg.key.remoteJid, { text: '⏳ Mengonversi ke Gambar...' }, { quoted: msg });
+      await sock.sendMessage(msg.key.remoteJid, { text: '⏳ Mengonversi ke gambar...' }, { quoted: msg });
 
       const stream = await downloadContentFromMessage(stickerMsg, 'sticker');
       let buffer = Buffer.from([]);
@@ -47,3 +47,5 @@ module.exports = {
     }
   }
 };
+
+// [berhasil] fitur ubah stiker diam menjadi gambar ✓

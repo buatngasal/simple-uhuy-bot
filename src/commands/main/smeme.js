@@ -36,7 +36,7 @@ module.exports = {
     try {
       const quoted = msg.message.extendedTextMessage?.contextInfo?.quotedMessage;
       if (!quoted || (!quoted.imageMessage && !quoted.videoMessage)) {
-        return sock.sendMessage(msg.key.remoteJid, { text: `Balas gambar/video pendek: *${commandPrefix}smeme atas | bawah*` }, { quoted: msg });
+        return sock.sendMessage(msg.key.remoteJid, { text: `⚠️ Balas gambar/video pendek dengan perintah: *${commandPrefix}smeme atas | bawah*` }, { quoted: msg });
       }
 
       // 1. PATH FONT - Trik khusus Windows agar FFmpeg mengenali drive letter (C\:/...)
@@ -131,4 +131,5 @@ module.exports = {
   }
 };
 
-// [fix] sticker meme: support colon escaping ✓
+// [berhasil] stiker meme: mendukung colon escaping ✓
+
