@@ -41,17 +41,17 @@ ai-edit/
 # Data files (keep only example/template)
 schedules.json
 points.json
-autoresponder.json
 menfess.json
 afk.json
 welcome.json
+storage.json
 # Provide example if needed
 schedules.example.json
 points.example.json
-autoresponder.example.json
 menfess.example.json
 afk.example.json
 welcome.example.json
+storage.example.json
 
 # Misc
 web-server.js

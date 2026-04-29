@@ -25,7 +25,7 @@ function logDebugStatus(sender, config) {
 
     console.log(`
 ===================================
-         --- AUTH DEBUG LOG ---
+      --- AUTH DEBUG LOG ---
 Time         : ${time}
 ID Full      : ${sender}
 Number Clean : ${senderNumber}

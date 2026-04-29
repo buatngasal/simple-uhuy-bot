@@ -6,7 +6,6 @@ const chalk = require('chalk');
 const axios = require('axios');
 const config = require('./config');
 const { addPoint } = require('./src/commands/main/points');
-const autoresponderCmd = require('./src/commands/main/autoresponder');
 const database = require('./src/lib/database');
 const apiManager = require('./src/lib/api-manager');
 const cache = require('./src/lib/cache');
@@ -18,6 +17,7 @@ const { afkHandler } = require('./src/lib/afk-handler');
 const { handleGroupUpdate } = require('./src/lib/group-update');
 const { autoLoginWifi } = require('./src/lib/wifi-connect');
 const { getMediaDebugInfo, logDebugStatus } = require('./src/lib/debug'); let globalDebugMode = false; 
+const storageLib = require('./src/lib/storage');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 
@@ -85,115 +85,6 @@ function clearBackgroundIntervals() {
     clearInterval(interval);
   });
   backgroundIntervals.length = 0;
-}
-
-// Function to send image from base64 data
-async function sendImageFromBase64(sock, jid, base64Data, quotedMsg) {
-  try {
-    const imageBuffer = Buffer.from(base64Data, 'base64');
-    await sock.sendMessage(jid, { image: imageBuffer }, { quoted: quotedMsg });
-  } catch (error) {
-    console.error('Error sending image from base64:', error);
-    throw error;
-  }
-}
-
-// Function to send video from base64 data
-async function sendVideoFromBase64(sock, jid, base64Data, quotedMsg) {
-  try {
-    const videoBuffer = Buffer.from(base64Data, 'base64');
-    await sock.sendMessage(jid, { video: videoBuffer }, { quoted: quotedMsg });
-  } catch (error) {
-    console.error('Error sending video from base64:', error);
-    throw error;
-  }
-}
-
-// Function to send audio from base64 data
-async function sendAudioFromBase64(sock, jid, base64Data, quotedMsg) {
-  try {
-    const audioBuffer = Buffer.from(base64Data, 'base64');
-    await sock.sendMessage(jid, { audio: audioBuffer }, { quoted: quotedMsg });
-  } catch (error) {
-    console.error('Error sending audio from base64:', error);
-    throw error;
-  }
-}
-
-// Function to send sticker from base64 data
-async function sendStickerFromBase64(sock, jid, base64Data, quotedMsg) {
-  try {
-    const stickerBuffer = Buffer.from(base64Data, 'base64');
-    await sock.sendMessage(jid, { sticker: stickerBuffer }, { quoted: quotedMsg });
-  } catch (error) {
-    console.error('Error sending sticker from base64:', error);
-    // Fallback to text message if sticker sending fails
-    await sock.sendMessage(jid, { text: '❌ Failed to send sticker.' }, { quoted: quotedMsg });
-  }
-}
-
-// Function to send sticker from URL
-async function sendStickerFromUrl(sock, jid, url, quotedMsg) {
-  let tempInput = null;
-  let tempOutput = null;
-
-  try {
-    // Download image from URL
-    const res = await axios.get(url, {
-      responseType: 'arraybuffer',
-      timeout: 30000 // 30 second timeout
-    });
-    const buffer = Buffer.from(res.data);
-
-    const tempDir = path.join(__dirname, 'temp');
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir, { recursive: true });
-    }
-
-    tempInput = path.join(tempDir, `autoresponder_${Date.now()}.jpg`);
-    tempOutput = path.join(tempDir, `autoresponder_${Date.now()}.webp`);
-
-    fs.writeFileSync(tempInput, buffer);
-
-    await new Promise((resolve, reject) => {
-      ffmpeg(tempInput)
-        .outputOptions([
-          '-vcodec', 'libwebp',
-          '-vf', 'scale=512:512:force_original_aspect_ratio=decrease,fps=15',
-          '-lossless', '1',
-          '-compression_level', '6',
-          '-q:v', '50',
-          '-loop', '0',
-          '-preset', 'default',
-          '-an',
-          '-vsync', '0'
-        ])
-        .toFormat('webp')
-        .save(tempOutput)
-        .on('end', resolve)
-        .on('error', reject);
-    });
-
-    const stickerBuffer = fs.readFileSync(tempOutput);
-    await sock.sendMessage(jid, { sticker: stickerBuffer }, { quoted: quotedMsg });
-
-  } catch (error) {
-    console.error('Error creating sticker from URL:', error);
-    // Fallback to text message if sticker creation fails
-    await sock.sendMessage(jid, { text: '❌ Failed to create sticker from URL.' }, { quoted: quotedMsg });
-  } finally {
-    // Clean up temporary files
-    try {
-      if (tempInput && fs.existsSync(tempInput)) {
-        fs.unlinkSync(tempInput);
-      }
-      if (tempOutput && fs.existsSync(tempOutput)) {
-        fs.unlinkSync(tempOutput);
-      }
-    } catch (cleanupError) {
-      console.error('Error cleaning up temporary files:', cleanupError.message);
-    }
-  }
 }
 
 // SET: WiFi SSID and Password
@@ -349,62 +240,10 @@ async function startBot() {
       const isAfk = await afkHandler(sock, msg);
       if (isAfk) return;
 
-      // Autoresponder logic
-      const triggers = autoresponderCmd.getTriggers(msg.key.remoteJid);
-      for (const [trigger, response] of Object.entries(triggers)) {
-        if (body.toLowerCase().includes(trigger)) {
-          try {
-            // Check if response is a sticker format
-            if (response.startsWith('STICKER:')) {
-              const stickerUrl = response.substring(8).trim();
-              await sendStickerFromUrl(sock, msg.key.remoteJid, stickerUrl, msg);
-            } else if (response.startsWith('STICKER_BASE64:')) {
-              const stickerBase64 = response.substring(15);
-              try {
-                await sendStickerFromBase64(sock, msg.key.remoteJid, stickerBase64, msg);
-              } catch (e) {
-                await sock.sendMessage(msg.key.remoteJid, { text: '❌ Failed to send sticker.' }, { quoted: msg });
-              }
-            } else if (response.startsWith('IMAGE_BASE64:')) {
-              const imageBase64 = response.substring(13);
-              try {
-                await sendImageFromBase64(sock, msg.key.remoteJid, imageBase64, msg);
-              } catch (e) {
-                await sock.sendMessage(msg.key.remoteJid, { text: '❌ Failed to send image.' }, { quoted: msg });
-              }
-            } else if (response.startsWith('VIDEO_BASE64:')) {
-              const videoBase64 = response.substring(13);
-              try {
-                await sendVideoFromBase64(sock, msg.key.remoteJid, videoBase64, msg);
-              } catch (e) {
-                await sock.sendMessage(msg.key.remoteJid, { text: '❌ Failed to send video.' }, { quoted: msg });
-              }
-            } else if (response.startsWith('AUDIO_BASE64:')) {
-              const audioBase64 = response.substring(13);
-              try {
-                await sendAudioFromBase64(sock, msg.key.remoteJid, audioBase64, msg);
-              } catch (e) {
-                await sock.sendMessage(msg.key.remoteJid, { text: '❌ Failed to send audio.' }, { quoted: msg });
-              }
-            } else if (response.startsWith('FORWARD:')) {
-              try {
-                const forwardData = JSON.parse(response.substring(8));
-                await sock.sendMessage(msg.key.remoteJid, forwardData.message, { quoted: msg });
-              } catch (e) {
-                await sock.sendMessage(msg.key.remoteJid, { text: '❌ Failed to forward message.' }, { quoted: msg });
-              }
-            } else if (response.startsWith('STICKER_REF:')) {
-              // Ignore or show error, never send raw data
-              await sock.sendMessage(msg.key.remoteJid, { text: '❌ This sticker trigger is not supported. Please re-add it.' }, { quoted: msg });
-            } else {
-              // Only send as text if it is not a special prefix
-              await sock.sendMessage(msg.key.remoteJid, { text: response }, { quoted: msg });
-            }
-          } catch (error) {
-            console.error('Error sending autoresponder:', error.message);
-          }
-          break;
-        }
+      // Storage trigger
+      if (!isCommand) {
+        const isStorageTrigger = await storageLib.handle(sock, msg, body);
+        if (isStorageTrigger) return;
       }
 
       if (!isCommand) return;

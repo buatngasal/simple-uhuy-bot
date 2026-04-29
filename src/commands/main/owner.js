@@ -1,5 +1,7 @@
 const { ownerNumber } = require('../../../config');
-const own = ownerNumber[0]; // pilih nomor owner yang pertama
+const { botName } = require('../../../config');
+const own = ownerNumber[0]; // pilih nomor owner yang pertama (index 0)
+const name = botName; // nama bot
 
 module.exports = {
   name: 'owner',
@@ -9,18 +11,18 @@ module.exports = {
     const infoText = `*🤖 INFO OWNER BOT*
 
 ◦ *Nomor* : wa.me/${own}
-◦ *Nama* : Uhuy-Bot
+◦ *Nama* : ${name}
 ◦ *GitHub* : github.com/buatngasal/simple-uhuy-bot
 
-_Dikembangkan oleh Uhuy-Bot_`;
+_Dikembangkan oleh ${name}_`;
 
     await sock.sendMessage(msg.key.remoteJid, { text: infoText }, { quoted: msg });
 
     // 2. Kirim File Kontak (vCard)
     const vcard = 'BEGIN:VCARD\n'
         + 'VERSION:3.0\n'
-        + 'FN:Uhuy-Bot\n' 
-        + 'ORG:Owner Uhuy-Bot;\n'
+        + `FN:${name}\n` 
+        + `ORG:Owner ${name};\n`
         + `TEL;type=CELL;type=VOICE;waid=${own}:+${own}\n`
         + 'END:VCARD';
 
@@ -28,7 +30,7 @@ _Dikembangkan oleh Uhuy-Bot_`;
         msg.key.remoteJid,
         { 
             contacts: { 
-                displayName: 'Uhuy-Bot', 
+                displayName: `${name}`, 
                 contacts: [{ vcard }] 
             }
         }

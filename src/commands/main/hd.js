@@ -16,7 +16,7 @@ module.exports = {
     const quoted = msg.message.extendedTextMessage?.contextInfo?.quotedMessage;
     const mediaData = quoted?.imageMessage || msg.message.imageMessage;
 
-    if (!mediaData) return sock.sendMessage(msg.key.remoteJid, { text: `❌ Balas gambar dengan perintah: ${commandPrefix}hd` }, { quoted: msg });
+    if (!mediaData) return sock.sendMessage(msg.key.remoteJid, { text: `⚠️ Balas gambar dengan perintah: ${commandPrefix}hd` }, { quoted: msg });
 
     await sock.sendMessage(msg.key.remoteJid, { text: '⏳ Sedang memproses gambar...' }, { quoted: msg });
 

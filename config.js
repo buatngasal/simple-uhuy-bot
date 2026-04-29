@@ -18,10 +18,10 @@ module.exports = {
   databaseFiles: {
     schedules: 'schedules.json',
     points: 'points.json',
-    autoresponder: 'autoresponder.json',
     menfess: 'menfess.json',
     afk: 'afk.json',
     welcome: 'welcome.json',
+    storage: 'storage.json',
   },
 
   // Background polling intervals (in milliseconds)
