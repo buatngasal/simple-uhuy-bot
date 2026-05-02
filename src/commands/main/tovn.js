@@ -16,7 +16,7 @@ module.exports = {
     
     // Validasi: pastikan membalas pesan audio/document
     if (!quoted || (!quoted.audioMessage && !quoted.documentMessage)) {
-      return sock.sendMessage(msg.key.remoteJid, { text: `⚠️ Balas audio atau file MP3 dengan perintah: ${commandPrefix}tovn` }, { quoted: msg });
+      return sock.sendMessage(msg.key.remoteJid, { text: `⚠️ Balas audio atau file MP3 dengan perintah: *${commandPrefix}tovn*` }, { quoted: msg });
     }
 
     const tempDir = path.join(__dirname, '../temp');

@@ -30,9 +30,14 @@ async function handleGroupUpdate(sock, update) {
       imageSource = fs.readFileSync(defaultPP); // Load local file as Buffer
     }
 
+    const sourceLink = 'https://github.com/buatngasal/simple-uhuy-bot';
+
+    let titleReply = '';
     if (action === 'add') {
+      titleReply = '◦ W E L C O M E ◦';
       rawText = settings.welcome || 'Selamat datang @user!';
     } else if (action === 'remove') {
+      titleReply = '◦ G O O D B Y E ◦';
       rawText = settings.left || 'Selamat tinggal @user!';
     }
 
@@ -41,11 +46,22 @@ async function handleGroupUpdate(sock, update) {
         .replace(/@user/g, `@${num.split('@')[0]}`)
         .replace(/@group/g, groupName);
 
-      await sock.sendMessage(id, { 
-        image: imageSource, // Can be either {url: ...} or local file Buffer
-        caption: message, 
-        mentions: [num] 
-      });
+        await sock.sendMessage(id, {
+          text: message,
+          contextInfo: {
+            externalAdReply: {
+              title: titleReply,
+              body: `Sistem Notifikasi Grup`,
+              mediaType: 1,
+              renderLargerThumbnail: true,
+              showAdAttribution: true,
+              thumbnail: Buffer.isBuffer(imageSource) ? imageSource : null,
+              thumbnailUrl: !Buffer.isBuffer(imageSource) ? imageSource.url : null,
+              sourceUrl: sourceLink
+            }
+          },
+          mentions: [num] 
+        });
     }
   }
 }

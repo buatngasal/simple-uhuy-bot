@@ -18,7 +18,7 @@ module.exports = {
         }, { quoted: msg });
       }
 
-      const caption = `*⚠️ INFO GEMPA TERKINI*
+      const caption = `⚠️ *- G E M P A -*
 
 📅 *Tanggal* : ${gempa.Tanggal}
 ⌚ *Waktu* : ${gempa.Jam}
@@ -31,13 +31,24 @@ module.exports = {
 
 _Sumber: BMKG Indonesia_`;
 
+      // URL Gambar Peta dari BMKG
       const mapUrl = `https://data.bmkg.go.id/DataMKG/TEWS/${gempa.Shakemap}`;
 
       await sock.sendMessage(
         msg.key.remoteJid,
         {
-          image: { url: mapUrl },
-          caption: caption
+          text: caption,
+          contextInfo: {
+            externalAdReply: {
+              title: `${gempa.Wilayah}`,
+              body: `Magnitudo: ${gempa.Magnitude} SR | Kedalaman: ${gempa.Kedalaman}`,
+              mediaType: 1,
+              renderLargerThumbnail: true,
+              showAdAttribution: true,
+              thumbnailUrl: mapUrl,
+              sourceUrl: "https://www.bmkg.go.id/"
+            }
+          }
         },
         { quoted: msg }
       );

@@ -13,7 +13,7 @@ module.exports = {
 
       if (!mediaData) {
         return sock.sendMessage(msg.key.remoteJid, { 
-          text: `⚠️ Balas gambar dengan perintah: ${commandPrefix}hd` 
+          text: `⚠️ Balas gambar dengan perintah: *${commandPrefix}hd*` 
         }, { quoted: msg });
       }
 

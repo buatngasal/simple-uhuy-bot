@@ -1,6 +1,5 @@
 const { downloadMediaMessage } = require('@whiskeysockets/baileys');
-const Tesseract = require('tesseract.js');
-const path = require('path');
+const { processOCR } = require('../../lib/ocr');
 const { commandPrefix } = require('../../../config');
 
 module.exports = {
@@ -10,48 +9,33 @@ module.exports = {
   async execute(sock, msg, args) {
     try {
       const quoted = msg.message.extendedTextMessage?.contextInfo?.quotedMessage;
-      let buffer;
+      const isImage = msg.message.imageMessage;
+      const isQuotedImage = quoted?.imageMessage;
 
-      // Logika deteksi gambar (Reply atau Pesan Gambar Langsung)
-      if (quoted && quoted.imageMessage) {
-        const stream = await downloadMediaMessage(
-          { key: msg.key, message: quoted },
-          'buffer' // Menggunakan shortcut 'buffer' jika didukung versi Baileys kamu
-        );
-        buffer = stream;
-      } else if (msg.message.imageMessage) {
-        buffer = await downloadMediaMessage(msg, 'buffer');
-      } else {
+      if (!isImage && !isQuotedImage) {
         return sock.sendMessage(msg.key.remoteJid, { 
-          text: `Silakan reply gambar dengan perintah: ${commandPrefix}ocr` 
+          text: `Silakan balas gambar dengan perintah: *${commandPrefix}ocr*` 
         }, { quoted: msg });
       }
 
-      // Memberi tahu pengguna bahwa proses sedang berjalan
-      await sock.sendMessage(msg.key.remoteJid, { text: '🔍 Sedang memproses gambar...' }, { quoted: msg });
+      // Download buffer
+      const targetMsg = isQuotedImage ? { key: msg.key, message: quoted } : msg;
+      const buffer = await downloadMediaMessage(targetMsg, 'buffer');
 
-      // Proses OCR menggunakan Tesseract
-      const { data: { text } } = await Tesseract.recognize(
-        buffer,
-        'ind+eng',
-        {
-          cachePath: path.join(__dirname, '../temp'), // Simpan data bahasa di folder temp
-          logger: m => console.log(m) 
-        }
-      );
+      await sock.sendMessage(msg.key.remoteJid, { text: '🔍 Sedang memproses...' }, { quoted: msg });
 
-      if (!text || text.trim().length === 0) {
-        return sock.sendMessage(msg.key.remoteJid, { text: '❌ Gagal mengenali teks dalam gambar tersebut.' }, { quoted: msg });
+      // Gunakan library OCR
+      const text = await processOCR(buffer);
+
+      if (!text) {
+        return sock.sendMessage(msg.key.remoteJid, { text: '❌ Teks tidak ditemukan.' }, { quoted: msg });
       }
 
-      // Kirim hasil teks
-      await sock.sendMessage(msg.key.remoteJid, { 
-        text: `${text.trim()}` // Hasil OCR
-      }, { quoted: msg });
+      await sock.sendMessage(msg.key.remoteJid, { text }, { quoted: msg });
 
     } catch (error) {
-      console.error('OCR Error:', error);
-      await sock.sendMessage(msg.key.remoteJid, { text: '❌ Terjadi kesalahan saat memproses OCR.' }, { quoted: msg });
+      console.error('OCR Command Error:', error);
+      await sock.sendMessage(msg.key.remoteJid, { text: '❌ Terjadi kesalahan sistem.' }, { quoted: msg });
     }
   },
 };

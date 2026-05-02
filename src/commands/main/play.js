@@ -15,7 +15,7 @@ module.exports = {
   description: 'Download langsung audio YouTube via link atau kata kunci',
   async execute(sock, msg, args) {
     const query = args.join(' ');
-    if (!query) return sock.sendMessage(msg.key.remoteJid, { text: formatError('Input kosong', 'Masukkan judul lagu atau link YouTube!') });
+    if (!query) return sock.sendMessage(msg.key.remoteJid, { text: formatError('Input kosong', 'Masukkan judul lagu atau link YouTube!') }, { quoted: msg });
 
     let browser = null;
     let videoData = { title: 'YouTube Audio', link: '', thumb: '' };
@@ -97,7 +97,7 @@ module.exports = {
     } catch (e) {
       console.error('Play Error:', e);
       if (browser) await browser.close();
-      await sock.sendMessage(msg.key.remoteJid, { text: formatError('Error', e.message) });
+      await sock.sendMessage(msg.key.remoteJid, { text: formatError('Error', e.message) }, { quoted: msg });
     }
   }
 };

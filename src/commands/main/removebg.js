@@ -1,7 +1,5 @@
+const { removeBackground } = require('@imgly/background-removal-node');
 const { downloadContentFromMessage } = require('@whiskeysockets/baileys');
-const fs = require('fs');
-const path = require('path');
-const { removeBG } = require('../../../src/lib/scraper-background-remover');
 const { commandPrefix } = require('../../../config');
 
 module.exports = {
@@ -9,39 +7,53 @@ module.exports = {
   description: 'Menghapus latar belakang gambar secara otomatis',
   usage: `${commandPrefix}removebg <reply_gambar>`,
   async execute(sock, msg, args) {
-    const quoted = msg.message.extendedTextMessage?.contextInfo?.quotedMessage;
-    const mediaData = quoted?.imageMessage || msg.message.imageMessage;
+    const remoteJid = msg.key.remoteJid;
+    const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
+    const isImageQuoted = quoted?.imageMessage || quoted?.viewOnceMessageV2?.message?.imageMessage;
 
-    if (!mediaData) return sock.sendMessage(msg.key.remoteJid, { text: `⚠️ Balas gambar dengan perintah: ${commandPrefix}removebg` }, { quoted: msg });
-
-    await sock.sendMessage(msg.key.remoteJid, { text: '⏳ Sedang memproses gambar...' }, { quoted: msg });
-
-    const tempDir = path.join(__dirname, '../temp');
-    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
-    const inputPath = path.join(tempDir, `rbg-${Date.now()}.jpg`);
+    if (!isImageQuoted) {
+      return sock.sendMessage(remoteJid, { text: `⚠️ Balas gambar dengan perintah: *${commandPrefix}removebg*` }, { quoted: msg });
+    }
 
     try {
-      // Download gambar dari WhatsApp
-      const stream = await downloadContentFromMessage(mediaData, 'image');
+      await sock.sendMessage(remoteJid, { text: '⏳ Sedang memproses gambar...' }, { quoted: msg });
+
+      // 1. Download Gambar dari WA
+      const imgMsg = quoted.imageMessage || quoted.viewOnceMessageV2.message.imageMessage;
+      const stream = await downloadContentFromMessage(imgMsg, 'image');
       let buffer = Buffer.from([]);
-      for await (const chunk of stream) buffer = Buffer.concat([buffer, chunk]);
-      fs.writeFileSync(inputPath, buffer);
+      for await (const chunk of stream) {
+        buffer = Buffer.concat([buffer, chunk]);
+      }
 
-      // Panggil Scraper dari Library
-      const resultBuffer = await removeBG(inputPath);
+      // 2. Perbaikan: Bungkus Buffer ke Blob agar format dikenali
+      const { Blob } = require('buffer'); // Pastikan import Blob jika versi Node lama
+      const imageBlob = new Blob([buffer], { type: 'image/jpeg' });
 
-      // Kirim Hasil
-      await sock.sendMessage(msg.key.remoteJid, { 
-        image: resultBuffer, 
+      // 3. Proses Hapus Background
+      // Tambahkan konfigurasi sederhana jika diperlukan
+      const config = {
+        model: "medium", // bisa 'small' untuk lebih cepat tapi kualitas turun
+        output: {
+          type: "image/png", // hasil harus PNG agar transparan
+          quality: 0.8
+        }
+      };
+
+      const resultBlob = await removeBackground(imageBlob, config);
+      
+      // 4. Konversi kembali ke Buffer untuk dikirim ke WA
+      const finalBuffer = Buffer.from(await resultBlob.arrayBuffer());
+
+      // 5. Kirim hasil
+      await sock.sendMessage(remoteJid, { 
+        image: finalBuffer, 
         caption: '*✅ B A C K G R O U N D ◦ R E M O V E D*' 
       }, { quoted: msg });
 
     } catch (error) {
-      console.error('RemoveBG Error:', error);
-      await sock.sendMessage(msg.key.remoteJid, { text: `❌ Error: ${error.message}` }, { quoted: msg });
-    } finally {
-      // Hapus file temp
-      if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath);
+      console.error(error);
+      await sock.sendMessage(remoteJid, { text: `❌ Gagal memproses: ${error.message}` }, { quoted: msg });
     }
   },
 };

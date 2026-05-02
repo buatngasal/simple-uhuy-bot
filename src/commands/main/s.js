@@ -42,7 +42,7 @@ module.exports = {
             mediaType = 'sticker';
             mime = 'image/webp';
         } else {
-            return sock.sendMessage(msg.key.remoteJid, { text: '⚠️ Reply gambar/video/stiker!' }, { quoted: msg });
+            return sock.sendMessage(msg.key.remoteJid, { text: '⚠️ Balas gambar/video/stiker!' }, { quoted: msg });
         }
         
         // Download media
@@ -56,7 +56,7 @@ module.exports = {
         buffer = Buffer.from(res.data);
         mediaType = 'image';
       } else {
-        return sock.sendMessage(msg.key.remoteJid, { text: `⚠️ Kirim/reply gambar/video dengan caption ${commandPrefix}s pack|author` }, { quoted: msg });
+        return sock.sendMessage(msg.key.remoteJid, { text: `⚠️ Kirim/balas gambar/video dengan caption: *${commandPrefix}s pack|author*` }, { quoted: msg });
       }
 
       const sticker = new Sticker(buffer, {

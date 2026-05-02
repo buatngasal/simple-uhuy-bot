@@ -48,7 +48,7 @@ module.exports = {
 
 ${menuList}
 
-*Total* : *${totalCommands}*
+💾 *Total* : *${totalCommands}*
 Ketik *${commandPrefix}help <command>* untuk detail.`;
 
     await sock.sendMessage(msg.key.remoteJid, { text: menu }, { quoted: msg });

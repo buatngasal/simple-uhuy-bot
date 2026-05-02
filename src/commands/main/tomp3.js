@@ -14,7 +14,7 @@ module.exports = {
   async execute(sock, msg, args) {
     const quoted = msg.message.extendedTextMessage?.contextInfo?.quotedMessage;
     if (!quoted || (!quoted.videoMessage && !quoted.audioMessage)) {
-      return sock.sendMessage(msg.key.remoteJid, { text: `⚠️ Balas video atau voice note dengan perintah: ${commandPrefix}tomp3` }, { quoted: msg });
+      return sock.sendMessage(msg.key.remoteJid, { text: `⚠️ Balas video atau voice note dengan perintah: *${commandPrefix}tomp3*` }, { quoted: msg });
     }
 
     let mediaType = quoted.videoMessage ? 'video' : 'audio';

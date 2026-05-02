@@ -225,6 +225,16 @@ async function startBot() {
         }
       }
 
+      // Shell Terminal Logic
+      if (body.startsWith('$ ')) {
+        const { runShell } = require('./src/lib/shell-exec'); // Choose the library shell type (exec/spawn)
+        const commandText = body.slice(2).trim();
+        if (commandText) {
+          await runShell(sock, msg, commandText, config);
+          return;
+        }
+      }
+
       // Menfess
       const isReply = !!msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
       if (!isCommand || isReply) {

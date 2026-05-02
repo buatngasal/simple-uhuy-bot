@@ -12,7 +12,7 @@ module.exports = {
       const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
       
       if (!quoted) {
-        return sock.sendMessage(id, { text: `⚠️ Reply pesan atau media menggunakan perintah: ${commandPrefix}bctag` }, { quoted: msg });
+        return sock.sendMessage(id, { text: `⚠️ Balas pesan atau media menggunakan perintah: *${commandPrefix}bctag*` }, { quoted: msg });
       }
 
       // Mendapatkan tipe pesan dan kontennya
