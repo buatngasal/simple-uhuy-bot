@@ -28,20 +28,20 @@ async function runShell(sock, msg, command, config) {
     exec(command, { timeout: 30000 }, async (error, stdout, stderr) => {
         if (error) {
             return sock.sendMessage(msg.key.remoteJid, { 
-                text: `❌ *ERROR:*\n\`\`\`bash\n${error.message}\n\`\`\`` 
+                text: `${error.message}` 
             }, { quoted: msg });
         }
         
         if (stderr) {
             return sock.sendMessage(msg.key.remoteJid, { 
-                text: `⚠️ *STDERR:*\n\`\`\`bash\n${stderr}\n\`\`\`` 
+                text: `${stderr}` 
             }, { quoted: msg });
         }
 
         const output = stdout.trim() || "✅ Successfully executed with no output.";
         
         await sock.sendMessage(msg.key.remoteJid, { 
-            text: `💻 *RESULT:*\n\`\`\`bash\n${output}\n\`\`\`` 
+            text: `${output}` 
         }, { quoted: msg });
     });
 }

@@ -27,6 +27,7 @@ module.exports = {
   // Background polling intervals (in milliseconds)
   polling: {
     scheduledMessages: 60 * 1000, // 1 minute
+    gempaMessages: 60 * 1000, // 1 minute
   },
 
   // API settings

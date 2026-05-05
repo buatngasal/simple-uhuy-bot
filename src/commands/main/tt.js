@@ -4,7 +4,7 @@ const { commandPrefix } = require('../../../config');
 
 module.exports = {
     name: 'tt',
-    description: 'Download TikTok via Library Scraper',
+    description: 'Download TikTok Video',
     usage: `${commandPrefix}tt <tiktok_url>`,
     async execute(sock, msg, args) {
         const url = args[0];

@@ -33,7 +33,7 @@ async function tiktokScraper(url) {
         await page.click('button[type="submit"]');
 
         // Wait for data to appear
-        await page.waitForSelector('.btn-secondary.w-full', { timeout: 15000 });
+        await page.waitForSelector('.btn-primary.w-full', { timeout: 15000 });
 
         // Extract text data
         const metadata = await page.evaluate(() => {
@@ -48,7 +48,7 @@ async function tiktokScraper(url) {
         });
 
         // Trigger Download Link
-        await page.click('.btn-secondary.w-full');
+        await page.click('.btn-primary.w-full');
 
         let retry = 0;
         while (!finalVideoUrl && retry < 15) {

@@ -64,7 +64,7 @@ async function runEval(sock, msg, code, config, args) {
         }
 
         await sock.sendMessage(msg.key.remoteJid, { 
-            text: `✅ *RESULT:*\n\`\`\`javascript\n${evaled}\n\`\`\`` 
+            text: `${evaled}` 
         }, { quoted: msg });
 
     } catch (err) {
@@ -73,9 +73,9 @@ async function runEval(sock, msg, code, config, args) {
             let evaled = await eval(`(async () => { ${code} })()`);
             if (typeof evaled === 'undefined') return;
             if (typeof evaled !== 'string') evaled = util.inspect(evaled, { depth: 1 });
-            await sock.sendMessage(msg.key.remoteJid, { text: `✅ *RESULT:*\n\`\`\`javascript\n${evaled}\n\`\`\`` }, { quoted: msg });
+            await sock.sendMessage(msg.key.remoteJid, { text: `${evaled}` }, { quoted: msg });
         } catch (finalErr) {
-            await sock.sendMessage(msg.key.remoteJid, { text: `❌ *ERROR:*\n\`\`\`bash\n${String(finalErr)}\n\`\`\`` }, { quoted: msg });
+            await sock.sendMessage(msg.key.remoteJid, { text: `${String(finalErr)}` }, { quoted: msg });
         }
     }
     

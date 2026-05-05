@@ -45,6 +45,7 @@ menfess.json
 afk.json
 welcome.json
 storage.json
+last_gempa.json
 # Provide example if needed
 schedules.example.json
 points.example.json
@@ -52,6 +53,7 @@ menfess.example.json
 afk.example.json
 welcome.example.json
 storage.example.json
+last_gempa.example.json
 
 # Misc
 web-server.js

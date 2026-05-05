@@ -17,6 +17,7 @@ const { afkHandler } = require('./src/lib/afk-handler');
 const { handleGroupUpdate } = require('./src/lib/group-update');
 const { autoLoginWifi } = require('./src/lib/wifi-connect');
 const { getMediaDebugInfo, logDebugStatus } = require('./src/lib/debug'); let globalDebugMode = false; 
+const { checkGempa } = require('./src/lib/gempa-monitor');
 const storageLib = require('./src/lib/storage');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
@@ -77,6 +78,18 @@ async function pollBackground(sock) {
 
   backgroundIntervals.push(scheduleInterval);
 
+
+  // Gempa Messages
+  const gempaInterval = setInterval(async () => {
+    try {
+      await checkGempa(sock);
+    } catch (error) {
+      console.error('Error in gempa polling:', error.message);
+    }
+  }, config.polling.gempaMessages);
+
+  backgroundIntervals.push(gempaInterval);
+  
 }
 
 // Function to clear all background intervals
@@ -104,7 +117,7 @@ async function startBot() {
   const sock = makeWASocket({
     version,
     auth: state,
-    browser: ['Uhuy-Bot', 'Chrome', '110.0.0.0'],
+    browser: [`${config.botName}`, 'Chrome', '110.0.0.0'],
   });
 
   sock.ev.on('creds.update', saveCreds);
@@ -142,7 +155,7 @@ async function startBot() {
       }
     } else if (connection === 'open') {
       connectionHealth.connectionOpened();
-      console.log(chalk.green('Uhuy-Bot is ready!'));
+      console.log(chalk.green(`${config.botName} is ready!`));
 
       // Initialize command loader
       await commandLoader.initialize();

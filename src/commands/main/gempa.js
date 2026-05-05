@@ -20,16 +20,16 @@ module.exports = {
 
       const caption = `⚠️ *- G E M P A -*
 
-📅 *Tanggal* : ${gempa.Tanggal}
-⌚ *Waktu* : ${gempa.Jam}
-📍 *Koordinat* : ${gempa.Coordinates}
-📏 *Magnitudo* : ${gempa.Magnitude} SR
-🌊 *Kedalaman* : ${gempa.Kedalaman}
-🗺️ *Lokasi* : ${gempa.Wilayah}
-📢 *Potensi* : ${gempa.Potensi}
-🕒 *Dirasakan* : ${gempa.Dirasakan || '-'}
+  ◦ *Lintang* : ${gempa.Lintang}
+  ◦ *Bujur* : ${gempa.Bujur}
+  ◦ *Skala* : ${gempa.Magnitude} SR
+  ◦ *Kedalaman* : ${gempa.Kedalaman}
+  ◦ *Waktu* : ${gempa.Tanggal}, ${gempa.Jam}
+  ◦ *Pusat Gempa* : ${gempa.Wilayah}
+  ◦ *Zona Gempa* : ${gempa.Dirasakan || '-'}
+  ◦ *Arahan* : ${gempa.Potensi}
 
-_Sumber: BMKG Indonesia_`;
+  ◦ *Sumber* : BMKG Indonesia`;
 
       // URL Gambar Peta dari BMKG
       const mapUrl = `https://data.bmkg.go.id/DataMKG/TEWS/${gempa.Shakemap}`;

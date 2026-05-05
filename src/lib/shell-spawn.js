@@ -39,7 +39,7 @@ async function runShell(sock, msg, command, config) {
     child.on('close', async (code) => {
         if (stderr.trim() && !stdout.trim()) {
             return sock.sendMessage(msg.key.remoteJid, { 
-                text: `❌ *SHELL ERROR (Code ${code}):*\n\`\`\`bash\n${stderr.trim()}\n\`\`\`` 
+                text: `❌ *${code}*\n\n${stderr.trim()}` 
             }, { quoted: msg });
         }
 
@@ -59,14 +59,14 @@ async function runShell(sock, msg, command, config) {
         }
 
         await sock.sendMessage(msg.key.remoteJid, { 
-            text: `💻 *TERMINAL SPAWN:*\n\`\`\`bash\n${result}\n\`\`\`` 
+            text: `${result}` 
         }, { quoted: msg });
     });
 
     // Error if command not found or fails to execute
     child.on('error', async (err) => {
         await sock.sendMessage(msg.key.remoteJid, { 
-            text: `❌ *SYSTEM ERROR:*\n\`\`\`bash\n${err.message}\n\`\`\`` 
+            text: `${err.message}` 
         }, { quoted: msg });
     });
 }

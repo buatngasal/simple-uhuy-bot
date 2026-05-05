@@ -6,7 +6,7 @@
 function getMediaDebugInfo(msg) {
     if (!msg.message) return null;
     const fullJson = JSON.stringify(msg.message, null, 2);
-    return `\`\`\`${fullJson}\`\`\``;
+    return `${fullJson}`;
 }
 
 // Function to log to console and check Owner/Dev permissions
