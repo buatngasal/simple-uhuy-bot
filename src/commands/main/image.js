@@ -21,7 +21,7 @@ module.exports = {
 
       await sock.sendMessage(msg.key.remoteJid, { 
         image: imageBuffer, 
-        caption: `*✅ Y A N D E X ◦ I M A G E*\n\n◦ Query: ${query}` 
+        caption: `*✅ Y A N D E X ◦ I M A G E*` 
       }, { quoted: msg });
 
     } catch (error) {

@@ -9,7 +9,7 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 
 module.exports = {
   name: 'tovn',
-  description: 'Mengubah audio/mp3 menjadi voice_note.',
+  description: 'Mengubah audio/mp3 menjadi voice note.',
   usage: `${commandPrefix}tovn <reply_audio/mp3>`,
   async execute(sock, msg, args) {
     const quoted = msg.message.extendedTextMessage?.contextInfo?.quotedMessage;
@@ -64,4 +64,4 @@ module.exports = {
   },
 };
 
-// [berhasil] fitur ubah audio atau mp3 ke voice note ✓
+// [berhasil] fitur ubah audio / mp3 ke voice note ✓

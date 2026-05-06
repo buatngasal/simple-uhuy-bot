@@ -1,43 +1,53 @@
 const { downloadMediaMessage } = require('@whiskeysockets/baileys');
-const { processOCR } = require('../../lib/ocr');
+const { scraperImageToText } = require('../../lib/scraper-image-to-text');
+const fs = require('fs');
+const path = require('path');
 const { commandPrefix } = require('../../../config');
 
 module.exports = {
-  name: 'ocr',
-  description: 'Membaca teks dari gambar (OCR)',
-  usage: `${commandPrefix}ocr <reply_gambar>`,
-  async execute(sock, msg, args) {
-    try {
-      const quoted = msg.message.extendedTextMessage?.contextInfo?.quotedMessage;
-      const isImage = msg.message.imageMessage;
-      const isQuotedImage = quoted?.imageMessage;
+    name: 'ocr',
+    description: 'Mengekstrak teks dari gambar (OCR)',
+    async execute(sock, msg, args) {
+        const tempPath = path.join(__dirname, `../temp/ocr_${Date.now()}.jpg`);
+        
+        try {
+            const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
+            const isImage = msg.message?.imageMessage;
+            const isQuotedImage = quoted?.imageMessage;
 
-      if (!isImage && !isQuotedImage) {
-        return sock.sendMessage(msg.key.remoteJid, { 
-          text: `Silakan balas gambar dengan perintah: *${commandPrefix}ocr*` 
-        }, { quoted: msg });
-      }
+            if (!isImage && !isQuotedImage) {
+                return await sock.sendMessage(msg.key.remoteJid, { 
+                    text: `Balas gambar dengan perintah: *${commandPrefix}ocr*` 
+                }, { quoted: msg });
+            }
 
-      // Download buffer
-      const targetMsg = isQuotedImage ? { key: msg.key, message: quoted } : msg;
-      const buffer = await downloadMediaMessage(targetMsg, 'buffer');
+            await sock.sendMessage(msg.key.remoteJid, { text: '🔍 Sedang membaca gambar...' }, { quoted: msg });
 
-      await sock.sendMessage(msg.key.remoteJid, { text: '🔍 Sedang memproses...' }, { quoted: msg });
+            // Download Media
+            const targetMsg = isQuotedImage ? { message: quoted } : msg;
+            const buffer = await downloadMediaMessage(targetMsg, 'buffer', {}, { 
+                reuploadRequest: sock.updateMediaMessage 
+            });
 
-      // Gunakan library OCR
-      const text = await processOCR(buffer);
+            // Simpan sementara
+            if (!fs.existsSync(path.join(__dirname, '../temp'))) fs.mkdirSync(path.join(__dirname, '../temp'));
+            fs.writeFileSync(tempPath, buffer);
 
-      if (!text) {
-        return sock.sendMessage(msg.key.remoteJid, { text: '❌ Teks tidak ditemukan.' }, { quoted: msg });
-      }
+            // Panggil Scraper
+            const result = await scraperImageToText(tempPath);
 
-      await sock.sendMessage(msg.key.remoteJid, { text }, { quoted: msg });
+            // Kirim Hasil
+            await sock.sendMessage(msg.key.remoteJid, { 
+                text: `${result}` 
+            }, { quoted: msg });
 
-    } catch (error) {
-      console.error('OCR Command Error:', error);
-      await sock.sendMessage(msg.key.remoteJid, { text: '❌ Terjadi kesalahan sistem.' }, { quoted: msg });
+        } catch (error) {
+            console.error(error);
+            await sock.sendMessage(msg.key.remoteJid, { text: `❌ *Error*: ${error.message}` }, { quoted: msg });
+        } finally {
+            if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+        }
     }
-  },
 };
 
 // [berhasil] fitur OCR untuk membaca teks pada gambar ✓

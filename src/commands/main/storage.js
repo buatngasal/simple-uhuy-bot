@@ -27,3 +27,5 @@ module.exports = {
     return await sock.sendMessage(id, { text: menuText }, { quoted: msg });
   }
 };
+
+// [berhasil] fitur storage untuk melihat list pesan media dan memanggilnya tanpa prefix ✓

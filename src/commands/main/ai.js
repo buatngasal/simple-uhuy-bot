@@ -1,7 +1,9 @@
 const { aiScraper } = require('../../lib/scraper-ai');
 const { downloadMediaMessage } = require('@whiskeysockets/baileys');
-const { processOCR } = require('../../lib/ocr');
+const { scraperImageToText } = require('../../lib/scraper-image-to-text');
 const { commandPrefix } = require('../../../config');
+const fs = require('fs');
+const path = require('path');
 
 module.exports = {
     name: 'ai',
@@ -16,17 +18,20 @@ module.exports = {
         const isQuotedImage = quoted?.imageMessage;
 
         let extractedText = '';
+        let tempPath = null;
 
         try {
-            // 2. Jika ada gambar, jalankan processOCR
+            // 2. Jika ada gambar, jalankan scraperImageToText
             if (isImage || isQuotedImage) {
                 await sock.sendMessage(msg.key.remoteJid, { text: '🔍 Membaca teks dalam gambar...' }, { quoted: msg });
                 
                 const targetMsg = isQuotedImage ? { key: msg.key, message: quoted } : msg;
                 const buffer = await downloadMediaMessage(targetMsg, 'buffer');
-                
-                // Memanggil fungsi OCR eksternal kamu
-                extractedText = await processOCR(buffer);
+
+                tempPath = path.join(__dirname, `../temp/ai_${Date.now()}.jpg`);
+                fs.writeFileSync(tempPath, buffer);
+
+                extractedText = await scraperImageToText(tempPath);
             }
 
             // 3. Ambil teks dari quoted message (jika berupa teks biasa)
@@ -42,7 +47,7 @@ module.exports = {
 
             if (!finalQuery) {
                 return sock.sendMessage(msg.key.remoteJid, { 
-                    text: `*Contoh* : ${commandPrefix}ai apa itu cinta?\nAtau balas gambar/teks dengan perintah: ${commandPrefix}ai` 
+                    text: `*Contoh* : ${commandPrefix}ai apa itu cinta?\nAtau balas gambar/teks dengan perintah: ${commandPrefix}ai <pertanyaan>` 
                 }, { quoted: msg });
             }
 
@@ -60,8 +65,12 @@ module.exports = {
         } catch (error) {
             console.error("AI/OCR Error:", error.message);
             await sock.sendMessage(msg.key.remoteJid, { 
-                text: '❌ Gagal memproses permintaan.' 
+                text: `❌ Gagal memproses permintaan: ${error.message}` 
             }, { quoted: msg });
+        } finally {
+            if (tempPath && fs.existsSync(tempPath)) {
+                fs.unlinkSync(tempPath);
+            }
         }
     }
 };

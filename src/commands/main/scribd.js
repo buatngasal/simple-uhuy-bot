@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const { PDFDocument } = require('pdf-lib');
+const { commandPrefix } = require('../../../config');
 
 puppeteer.use(StealthPlugin());
 
@@ -14,7 +15,13 @@ module.exports = {
         if (!remoteJid) return;
 
         let url = Array.isArray(args) ? args.join(' ').trim() : String(args || '').trim();
-        if (!url || !url.includes('scribd.com')) return;
+        // SCRIBD URL FILTER
+        const scribdRegex = /^(https?:\/\/)?(www\.|id\.)?scribd\.com\/.+/i;
+        if (!url || !scribdRegex.test(url)) {
+            return sock.sendMessage(remoteJid, { 
+                text: `*Contoh* : ${commandPrefix}scribd https://www.scribd.com/document/7797665/Ayat-ayat-cinta-Review` 
+            }, { quoted: msg });
+        }
 
         let browser = null;
         try {
@@ -127,3 +134,5 @@ module.exports = {
         }
     }
 };
+
+// [berhasil] fitur untuk mendownload dokumen dari scribd ✓

@@ -20,3 +20,5 @@ module.exports = {
     return sock.sendMessage(id, { text: `✅ Berhasil menyimpan *"${name.toLowerCase()}"*.\nSekarang bisa dipanggil tanpa prefix di semua grup.` }, { quoted: msg });
   }
 };
+
+// [berhasil] fitur savefile storage untuk menyimpan pesan media dan memanggilnya tanpa prefix ✓
