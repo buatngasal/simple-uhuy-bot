@@ -21,7 +21,7 @@ module.exports = {
     let videoData = { title: 'YouTube Audio', link: '', thumb: '' };
 
     try {
-      await sock.sendMessage(msg.key.remoteJid, { text: formatLoading(`⌛ Sedang memproses: *${query}*...`) }, { quoted: msg });
+      await sock.sendMessage(msg.key.remoteJid, { text: formatLoading(`Sedang memproses: *${query}*...`) }, { quoted: msg });
 
       // CEK APAKAH INPUT ADALAH LINK
       if (ytRegex.test(query)) {

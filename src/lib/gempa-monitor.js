@@ -1,5 +1,6 @@
 const axios = require('axios');
 const fs = require('fs');
+const config = require('../../config'); 
 
 async function checkGempa(sock) {
   try {
@@ -29,22 +30,31 @@ async function checkGempa(sock) {
 
   ◦ *Sumber* : BMKG Indonesia`;
 
-      // Send to log group or specific admin number
-      const targetJid = '120363047892543638@g.us'; // Replace with target JID
-      await sock.sendMessage(targetJid, { 
-        text: caption,
-        contextInfo: {
-          externalAdReply: {
-            title: `${gempa.Wilayah}`,
-            body: `Magnitudo: ${gempa.Magnitude} SR | Kedalaman: ${gempa.Kedalaman}`,
-            mediaType: 1,
-            renderLargerThumbnail: true,
-            showAdAttribution: true,
-            thumbnailUrl: `https://data.bmkg.go.id/DataMKG/TEWS/${gempa.Shakemap}`,
-            sourceUrl: "https://www.bmkg.go.id/"
+
+      const targets = config.groupList.filter(jid => jid.endsWith('@g.us'));
+
+        for (const targetJid of targets) {
+          try {
+            await sock.sendMessage(targetJid, { 
+              text: caption,
+              contextInfo: {
+                externalAdReply: {
+                  title: `${gempa.Wilayah}`,
+                  body: `Magnitudo: ${gempa.Magnitude} SR | Kedalaman: ${gempa.Kedalaman}`,
+                  mediaType: 1,
+                  renderLargerThumbnail: true,
+                  showAdAttribution: true,
+                  thumbnailUrl: `https://data.bmkg.go.id/DataMKG/TEWS/${gempa.Shakemap}`,
+                  sourceUrl: "https://www.bmkg.go.id/"
+                }
+              }
+            });
+            // Pause for 1-2 seconds between groups to avoid being marked as spam by the WA server
+            await new Promise(resolve => setTimeout(resolve, 2000)); 
+          } catch (err) {
+            console.error(`Gagal mengirim pesan ke grup ${targetJid}:`, err);
           }
         }
-      });
       
     }
   } catch (err) {

@@ -11,6 +11,10 @@ module.exports = {
     '123901938000102', // index 1
     '106163622387764', // index 2
   ], 
+  groupList: [ // Sending message to a specific group
+    '120363047892543638@g.us',
+    '120363406667393956@g.us',
+  ],
   commandPrefix: '.',
   sessionName: 'session',
 
