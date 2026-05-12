@@ -26,6 +26,7 @@ module.exports = {
     afk: 'afk.json',
     welcome: 'welcome.json',
     storage: 'storage.json',
+    gempa: 'gempa.json',
   },
 
   // Background polling intervals (in milliseconds)

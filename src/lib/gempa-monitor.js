@@ -1,12 +1,13 @@
 const axios = require('axios');
 const fs = require('fs');
 const config = require('../../config'); 
+const path = require('path');
 
 async function checkGempa(sock) {
   try {
     const response = await axios.get('https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json');
     const gempa = response.data.Infogempa.gempa;
-    const lastGempaFile = '../../last_gempa.json';
+    const lastGempaFile = path.join(__dirname, '../../gempa.json'); 
 
     // Fetch existing data if available
     let lastData = fs.existsSync(lastGempaFile) ? JSON.parse(fs.readFileSync(lastGempaFile)) : {};

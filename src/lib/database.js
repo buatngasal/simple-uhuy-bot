@@ -17,6 +17,7 @@ class Database {
       afk: 'afk.json',
       welcome: 'welcome.json',
       storage: 'storage.json',
+      gempa: 'gempa.json',
     };
   }
 
@@ -220,7 +221,7 @@ class Database {
    * Preload frequently used databases
    */
   async preload() {
-    const frequentDbs = ['schedules', 'points', 'menfess', 'afk', 'welcome', 'storage'];
+    const frequentDbs = ['schedules', 'points', 'menfess', 'afk', 'welcome', 'storage', 'gempa'];
     const filePaths = frequentDbs.map(db => this.getFilePath(db));
     await cache.preload(filePaths);
   }
